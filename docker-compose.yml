@@ -9,20 +9,17 @@ services:
       MYSQL_DATABASE: explorer_api
     ports:
       - "3307:3306"
-    volumes:
-      - $HOME/explorer.sql:/explorer.sql
-      #- 'db-data:/var/lib/mysql'
   api:
     build: .
     image: polkascan/explorer-api-beta
     command: bash -c "/usr/src/start-backend.sh"
-    #volumes:
-    #  - .:/usr/src
     ports:
       - "8000:8000"
     environment:
       - PROJECT_NAME=polkadapt
       - DATABASE_URI=mysql+mysqlconnector://root:root@mysql:3306/explorer_api
+      - SERVER_HOST=http://0.0.0.0:8000
       - SENTRY_DSN=
+      - SERVER_NAME=
     depends_on:
       - db
