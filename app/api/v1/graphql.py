@@ -1,3 +1,4 @@
+import asyncio
 import graphene
 from starlette_graphene3 import GraphQLApp
 
@@ -45,6 +46,21 @@ class GraphQLQueries(graphene.ObjectType):
         return query.offset(offset).limit(limit).all()
 
 
-graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries))
+class Subscription(graphene.ObjectType):
+    block_sub = graphene.List(BlockSchema, filters=BlockFilter())
+
+    async def subscribe_block_sub(root, info, filters=None):
+        from app.models.harvester import Block
+        query = Block.query
+        if filters is not None:
+            query = BlockFilter.filter(info, query, filters)
+
+        query = query.offset(0).limit(5)
+        for obj in query.all():
+            yield obj
+            await asyncio.sleep(1)
+
+
+graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries, subscription=Subscription))
 app.add_route("/graphql", graphql_app)
 app.add_websocket_route("/graphql-ws", graphql_app)

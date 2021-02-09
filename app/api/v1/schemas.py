@@ -13,7 +13,7 @@ class BlockFilter(FilterSet):
     class Meta:
         model = Block
         fields = {
-            'hash':  ['eq',],
+            'hash':  ['eq','in'],
             'parent_hash':  ['eq',],
         }
 

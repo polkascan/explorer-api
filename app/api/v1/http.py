@@ -35,6 +35,7 @@ ws_html = """
         <h1>WebSocket test</h1>
         <textarea type="textarea" id="query-text" rows="4" cols="50">query allBlockies { allBlocks { id, hash } }</textarea>
         <button onclick="sendQuery()">Send</button>
+        <button onclick="subscribe()">Subscribe</button>
         <ul id='messages'>
         </ul>
         <script>
@@ -75,6 +76,17 @@ ws_html = """
                     "id": "test",
                     "payload": {
                         "query": q.value,
+                        "operationName": null,
+                    },
+                };
+                ws.send(JSON.stringify(payload));
+            }
+            function subscribe() {
+                payload = {
+                    "type": GQL_START,
+                    "id": "q1",
+                    "payload": {
+                        "query": "subscription { blockSub }",
                         "operationName": null,
                     },
                 };
