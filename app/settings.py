@@ -33,6 +33,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     DATABASE_URI: str
+    REDIS_URI: str
 
     SENTRY_DSN: Optional[HttpUrl] = None
 

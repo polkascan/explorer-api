@@ -9,10 +9,30 @@ services:
       MYSQL_DATABASE: explorer_api
     ports:
       - "3307:3306"
+  redis:
+    image: "redis:latest"
+  polling:
+    build:
+      context: .
+      dockerfile: ./docker/polling/Dockerfile
+    image: polkascan/explorer-polling-beta
+    command: python polling.py
+    environment:
+      - PROJECT_NAME=pollkadapt
+      - POLLING_REDIS_URI=redis://redis:6379
+      - POLLING_DATABASE_USER=root
+      - POLLING_DATABASE_PASSWORD=root
+      - POLLING_DATABASE_NAME=explorer_api
+      - POLLING_DATABASE_HOST=mysql
+    depends_on:
+      - redis
+      - db
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
     image: polkascan/explorer-api-beta
-    command: bash -c "/usr/src/start-backend.sh"
+    command: bash -c "/usr/src/start-api.sh"
     ports:
       - "8000:8000"
     environment:
@@ -23,3 +43,4 @@ services:
       - SERVER_NAME=
     depends_on:
       - db
+      - redis
