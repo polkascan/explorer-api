@@ -37,6 +37,7 @@ services:
       - "8000:8000"
     environment:
       - PROJECT_NAME=polkadapt
+      - REDIS_URI=redis://redis:6379
       - DATABASE_URI=mysql+mysqlconnector://root:root@mysql:3306/explorer_api
       - SERVER_HOST=http://0.0.0.0:8000
       - SENTRY_DSN=
