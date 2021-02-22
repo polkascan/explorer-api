@@ -34,6 +34,7 @@ async def poll_db(loop):
             user=os.environ["POLLING_DATABASE_USER"],
             db=os.environ["POLLING_DATABASE_NAME"],
             host=os.environ["POLLING_DATABASE_URI"],
+            port=int(os.environ["POLLING_DATABASE_PORT"], 0),
             password=os.environ["POLLING_DATABASE_PASSWORD"],
             loop=loop
         )
