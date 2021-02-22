@@ -14,7 +14,7 @@ services:
       - PROJECT_NAME=polkadapt
       - REDIS_URI=redis://redis:6379
       - POLLING_DATABASE_URI=localhost
-      - POLLING_DATABASE_PORT=3601
+      - POLLING_DATABASE_PORT=3306
       - POLLING_DATABASE_USER=root
       - POLLING_DATABASE_PASSWORD=root
       - POLLING_DATABASE_NAME=polkascan_network
@@ -32,7 +32,7 @@ services:
     environment:
       - PROJECT_NAME=polkadapt
       - REDIS_URI=redis://redis:6379
-      - DATABASE_URI=mysql+mysqlconnector://root:root@localhost:3601/polkascan_network
+      - DATABASE_URI=mysql+mysqlconnector://root:root@localhost:3306/polkascan_network
       - SERVER_HOST=http://0.0.0.0:8000
       - SENTRY_DSN=
       - SERVER_NAME=
