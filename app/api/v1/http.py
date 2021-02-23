@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Any
 from fastapi.responses import HTMLResponse
 
+from app import settings
 from app.main import app
 from app.db import get_db
 from app.models.harvester import Block
@@ -43,14 +44,14 @@ def test_db(block_id, db: Session = Depends(get_db)) -> Any:
         count_events_extrinsic=1,
         count_events_finalization=1,
         count_accounts=1,
-        count_accounts_new =1,
+        count_accounts_new=1,
         count_accounts_reaped =1,
         count_sessions_new=1,
         count_contracts_new =1,
         count_log=1,
         range10000=1,
         range100000=1,
-        range1000000 =1,
+        range1000000=1,
         spec_version_id ="123"
     )
     bt = BlockTotal(
@@ -112,7 +113,7 @@ ws_html = """
             var GQL_START = "start";
             var GQL_STOP = "stop";
 
-            var ws = new WebSocket("ws://127.0.0.1:8000/graphql-ws", "graphql-ws");
+            var ws = new WebSocket("ws://""" + settings.WEBSOCKET_URI + """/graphql-ws", "graphql-ws");
 
             ws.onopen = function(event) {
                 ws.send('{"type": "' + GQL_CONNECTION_INIT+ '" }')
@@ -159,7 +160,6 @@ ws_html = """
     </body>
 </html>
 """
-
 
 @app.get("/test/ws")
 def test_websocket() -> Any:

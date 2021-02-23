@@ -11,8 +11,22 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     API_V1_STR: str = "/api/v1"
     SERVER_NAME: str
-    SERVER_HOST: AnyHttpUrl
+    SERVER_ADDR: str
+    SERVER_PORT: int
+    WEBSOCKET_ADDR: str
+    WEBSOCKET_PORT: int
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    API_SQLA_DIALECT: str
+    API_SQLA_DRIVER: str
+    DB_USERNAME: str
+    DB_PASSWORD: str
+    DB_HOST: str
+    DB_PORT: int
+    DB_NAME: str
+    POLLING_REDIS_HOST: str
+    POLLING_REDIS_PORT: int
+
+    SENTRY_DSN: Optional[HttpUrl] = None
 
     def __init__(self, *args, **kwargs):
         default_kws = {}
@@ -32,16 +46,40 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
-    DATABASE_URI: str
-    REDIS_URI: str
-
-    SENTRY_DSN: Optional[HttpUrl] = None
-
     @validator("SENTRY_DSN", pre=True)
     def sentry_dsn_can_be_blank(cls, v: str) -> Optional[str]:
         if len(v) == 0:
             return None
         return v
+
+    @property
+    def sqla_uri(self):
+        return f"{self.API_SQLA_DIALECT}+{self.API_SQLA_DRIVER}://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    @property
+    def WEBSOCKET_URI(self):
+        base = self.WEBSOCKET_ADDR
+        if self.WEBSOCKET_PORT:
+            base += f":{self.WEBSOCKET_PORT}"
+        return base
+
+    @property
+    def SERVER_URI(self):
+        base = self.SERVER_ADDR
+        if self.SERVER_PORT:
+            base += f":{self.SERVER_PORT}"
+        return base
+
+    @property
+    def SERVER_HOST(self):
+        base = f"https://{self.SERVER_URI}"
+        if self.SERVER_PORT:
+            base += f":{self.SERVER_PORT}"
+        return base
+
+    @property
+    def broadcast_uri(self):
+        return f"redis://{self.POLLING_REDIS_HOST}:{self.POLLING_REDIS_PORT}"
 
     class Config:
         case_sensitive = True

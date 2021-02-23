@@ -24,7 +24,8 @@ config = context.config
 # ---------------- added code here -------------------------#
 # this will overwrite the ini-file sqlalchemy.url path
 # with the path given in the config of the main code
-config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URI"])
+sqla_uri = f"{os.environ['API_SQLA_DIALECT']}+{os.environ['API_SQLA_DRIVER']}://{os.environ['DB_USERNAME']}:{os.environ['DB_PASSWORD']}@{os.environ['DB_HOST']}:{os.environ['DB_PORT']}/{os.environ['DB_NAME']}"
+config.set_main_option("sqlalchemy.url", sqla_uri)
 #------------------------------------------------------------#
 
 # Interpret the config file for Python logging.

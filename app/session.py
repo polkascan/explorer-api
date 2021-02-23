@@ -4,5 +4,5 @@ from sqlalchemy.orm import sessionmaker
 from app.settings import settings
 
 
-engine = create_engine(settings.DATABASE_URI, pool_pre_ping=True)
+engine = create_engine(settings.sqla_uri, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

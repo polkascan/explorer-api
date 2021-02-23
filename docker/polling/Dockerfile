@@ -29,6 +29,6 @@ RUN pip3 install -r requirements.txt
 # add app
 COPY ./start-polling.sh /usr/src
 COPY ./polling.py /usr/src
-#COPY ./.env /usr/src
+COPY ./.env /usr/src
 
 CMD bash -c "/usr/src/start-polling.sh"

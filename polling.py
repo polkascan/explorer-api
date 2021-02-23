@@ -21,7 +21,7 @@ class CACHE():
         self.last_block_id = -1
 
 
-broadcast = Broadcast(os.environ["REDIS_URI"])
+broadcast = Broadcast(f"redis://{os.environ['POLLING_REDIS_HOST']}:{os.environ['POLLING_REDIS_PORT']}")
 cache = CACHE()
 
 
@@ -29,13 +29,12 @@ async def poll_db(loop):
     await broadcast.connect()
 
     while True:
-        #TODO: get the connection from a connection pool
         conn = await aiomysql.connect(
-            user=os.environ["POLLING_DATABASE_USER"],
-            db=os.environ["POLLING_DATABASE_NAME"],
-            host=os.environ["POLLING_DATABASE_URI"],
-            port=int(os.environ["POLLING_DATABASE_PORT"], 0),
-            password=os.environ["POLLING_DATABASE_PASSWORD"],
+            user=os.environ["DB_USERNAME"],
+            db=os.environ["DB_NAME"],
+            host=os.environ["DB_HOST"],
+            port=int(os.environ["DB_PORT"], 0),
+            password=os.environ["DB_PASSWORD"],
             loop=loop
         )
 
@@ -43,7 +42,7 @@ async def poll_db(loop):
             await cur.execute(f"SELECT MAX(bt.id) FROM data_block_total bt")
             res = await cur.fetchall()
             if cache.last_block_id == -1:
-                # print("initial block_id tip: ", res[0][0])
+                #print("initial block_id tip: ", res[0][0])
                 cache.last_block_id = res[0][0]
             elif res and res[0][0] > cache.last_block_id:
                 #print("send block_id tip: ", res[0][0])

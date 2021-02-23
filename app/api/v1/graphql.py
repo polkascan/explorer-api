@@ -29,7 +29,7 @@ class GraphQLQueries(graphene.ObjectType):
             offset = 0 #kwargs.pop('offset', 0)
             limit = 10 #kwargs.pop('limit', 10)
 
-            return query.offset(offset).limit(limit).all()
+            return query.order_by(Block.id.desc()).offset(offset).limit(limit).all()
 
     def resolve_all_extrinsics(self, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -40,7 +40,7 @@ class GraphQLQueries(graphene.ObjectType):
             offset = 0 #kwargs.pop('offset', 0)
             limit = 10 #kwargs.pop('limit', 10)
 
-            return query.offset(offset).limit(limit).all()
+            return query.order_by(Extrinsic.id.desc()).offset(offset).limit(limit).all()
 
     def resolve_all_events(self, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -51,7 +51,7 @@ class GraphQLQueries(graphene.ObjectType):
             offset = 0 #kwargs.pop('offset', 0)
             limit = 10 #kwargs.pop('limit', 10)
 
-            return query.offset(offset).limit(limit).all()
+            return query.order_by(Event.id.desc()).offset(offset).limit(limit).all()
 
 
 class Subscription(graphene.ObjectType):
@@ -68,7 +68,7 @@ class Subscription(graphene.ObjectType):
                         if filters is not None:
                             query = BlockFilter.filter(info, query, filters)
 
-                        query = query.offset(0).limit(10)
+                        query = query.order_by(Block.id.desc()).offset(0).limit(10)
                         items = query.all()
                         if items:
                             yield items

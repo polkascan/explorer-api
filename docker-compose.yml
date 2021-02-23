@@ -1,6 +1,15 @@
 version: "3"
 
 services:
+  db:
+    image: mysql
+    hostname: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: explorer_api
+    ports:
+      - "3307:3306"
+
   redis:
     image: "redis:latest"
 
@@ -10,17 +19,15 @@ services:
       dockerfile: ./docker/polling/Dockerfile
     image: polkascan/explorer-polling-beta
     command: python polling.py
-    environment:
-      - PROJECT_NAME=polkadapt
-      - REDIS_URI=redis://redis:6379
-      - POLLING_DATABASE_URI=localhost
-      - POLLING_DATABASE_PORT=3306
-      - POLLING_DATABASE_USER=root
-      - POLLING_DATABASE_PASSWORD=root
-      - POLLING_DATABASE_NAME=polkascan_network
     depends_on:
       - redis
-
+      - db
+    environment:
+      - DB_USERNAME=root
+      - DB_NAME=explorer_api
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_PASSWORD=root
   api:
     build:
       context: .
@@ -29,12 +36,12 @@ services:
     command: bash -c "/usr/src/start-api.sh"
     ports:
       - "8000:8000"
-    environment:
-      - PROJECT_NAME=polkadapt
-      - REDIS_URI=redis://redis:6379
-      - DATABASE_URI=mysql+mysqlconnector://root:root@localhost:3306/polkascan_network
-      - SERVER_HOST=http://0.0.0.0:8000
-      - SENTRY_DSN=
-      - SERVER_NAME=
     depends_on:
       - redis
+      - db
+    environment:
+      - DB_USERNAME=root
+      - DB_NAME=explorer_api
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_PASSWORD=root

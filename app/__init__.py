@@ -4,7 +4,7 @@ from broadcaster import Broadcast
 from app.settings import settings
 
 
-broadcast = Broadcast(settings.REDIS_URI)
+broadcast = Broadcast(settings.broadcast_uri)
 
 
 app = FastAPI(
