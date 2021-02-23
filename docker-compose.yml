@@ -1,6 +1,15 @@
 version: "3"
 
 services:
+  db:
+    image: mysql
+    hostname: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: explorer_api
+    ports:
+      - "3307:3306"
+
   redis:
     image: "redis:latest"
 
@@ -12,15 +21,13 @@ services:
     command: python polling.py
     depends_on:
       - redis
+      - db
     environment:
-      - DB_USERNAME=matthijs
-      - DB_NAME=polkascan_v1_rococo
-      - DB_HOST=qnap-11
-      - DB_PORT=36001
-      - DB_PASSWORD=matthijs
-      - POLLING_REDIS_HOST=redis
-      - POLLING_REDIS_PORT=6379
-
+      - DB_USERNAME=root
+      - DB_NAME=explorer_api
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_PASSWORD=root
   api:
     build:
       context: .
@@ -31,9 +38,10 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+      - db
     environment:
-      - DB_USERNAME=matthijs
-      - DB_NAME=polkascan_v1_rococo
-      - DB_HOST=qnap-11
-      - DB_PORT=36001
-      - DB_PASSWORD=matthijs
+      - DB_USERNAME=root
+      - DB_NAME=explorer_api
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_PASSWORD=root
