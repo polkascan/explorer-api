@@ -113,7 +113,7 @@ ws_html = """
             var GQL_START = "start";
             var GQL_STOP = "stop";
 
-            var ws = new WebSocket("ws://""" + settings.WEBSOCKET_URI + """/graphql-ws", "graphql-ws");
+            var ws = new WebSocket(\"""" + settings.WEBSOCKET_URI + """/graphql-ws", "graphql-ws");
 
             ws.onopen = function(event) {
                 ws.send('{"type": "' + GQL_CONNECTION_INIT+ '" }')

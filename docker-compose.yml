@@ -50,8 +50,7 @@ services:
       - SERVER_NAME=polkadapt
       - SERVER_ADDR=0.0.0.0
       - SERVER_PORT=8000
-      - WEBSOCKET_ADDR=127.0.0.1
-      - WEBSOCKET_PORT=8000
+      - WEBSOCKET_ADDR=ws://127.0.0.1:8000
       - BACKEND_CORS_ORIGINS=[]
       - SENTRY_DSN=
       - POLLING_REDIS_HOST=redis

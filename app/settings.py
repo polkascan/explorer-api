@@ -13,8 +13,7 @@ class Settings(BaseSettings):
     SERVER_NAME: str
     SERVER_ADDR: str
     SERVER_PORT: int
-    WEBSOCKET_ADDR: str
-    WEBSOCKET_PORT: int
+    WEBSOCKET_URI: str
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
     API_SQLA_DIALECT: str
     API_SQLA_DRIVER: str
@@ -55,13 +54,6 @@ class Settings(BaseSettings):
     @property
     def sqla_uri(self):
         return f"{self.API_SQLA_DIALECT}+{self.API_SQLA_DRIVER}://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-
-    @property
-    def WEBSOCKET_URI(self):
-        base = self.WEBSOCKET_ADDR
-        if self.WEBSOCKET_PORT:
-            base += f":{self.WEBSOCKET_PORT}"
-        return base
 
     @property
     def SERVER_URI(self):
