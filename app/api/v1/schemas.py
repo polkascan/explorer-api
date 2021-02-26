@@ -13,8 +13,46 @@ class BlockFilter(FilterSet):
     class Meta:
         model = Block
         fields = {
-            'hash':  ['eq','in'],
-            'parent_hash':  ['eq',],
+            'hash':  ['eq',],
+            'id':  ['eq',],
+        }
+
+
+class BlocksFilter(FilterSet):
+    hash_until = graphene.String()
+    hash_from = graphene.String()
+
+    @staticmethod
+    def hash_from(info, query, value, direction):
+        if value:
+            sub_select = query.session.query(Block.id)
+            block_nr = sub_select.filter(Block.hash == value).one()
+            block_nr = block_nr and block_nr[0] or None
+            if direction == 'lte':
+                query = query.filter(Block.id <= block_nr)
+            elif direction == 'lt':
+                query = query.filter(Block.id < block_nr)
+            elif direction == 'gte':
+                query = query.filter(Block.id >= block_nr)
+            elif direction == 'gt':
+                query = query.filter(Block.id > block_nr)
+
+        return query, None
+
+
+    @staticmethod
+    def hash_until_filter(info, query, value):
+        return BlocksFilter.hash_from(info, query, value, 'lte')
+
+    @staticmethod
+    def hash_from_filter(info, query, value):
+        return BlocksFilter.hash_from(info, query, value, 'gte')
+
+    class Meta:
+        model = Block
+        fields = {
+            'hash':  ['eq',],
+            'id':  ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 

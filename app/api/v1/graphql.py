@@ -3,7 +3,7 @@ import graphene
 from starlette_graphene3 import GraphQLApp
 
 from app.main import app
-from .schemas import BlockSchema, ExtrinsicSchema, ExtrinsicFilter, EventSchema, EventFilter, BlockFilter
+from .schemas import BlockSchema, ExtrinsicSchema, ExtrinsicFilter, EventSchema, EventFilter, BlockFilter, BlocksFilter
 
 from ... import broadcast
 from ...db import SessionManager
@@ -16,15 +16,26 @@ from app.models.harvester import Event
 
 class GraphQLQueries(graphene.ObjectType):
 
-    all_blocks = graphene.List(BlockSchema, filters=ExtrinsicFilter())
+    get_block = graphene.Field(BlockSchema, filters=BlockFilter())
+    get_blocks = graphene.List(BlockSchema, filters=BlocksFilter())
     all_extrinsics = graphene.List(ExtrinsicSchema, filters=ExtrinsicFilter())
     all_events = graphene.List(EventSchema, filters=EventFilter())
 
-    def resolve_all_blocks(self, info, filters=None):
+    def resolve_get_block(self, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
             query = session.query(Block)
             if filters is not None:
-                query = BlockFilter.filter(info, query, filters)
+                query = BlockFilter.filter(info, query, filters).one()
+            else:
+                query = query.order_by(Block.id.desc()).first()
+
+            return query
+
+    def resolve_get_blocks(self, info, filters=None):
+        with SessionManager(session_cls=SessionLocal) as session:
+            query = session.query(Block)
+            if filters is not None:
+                query = BlocksFilter.filter(info, query, filters)
 
             offset = 0 #kwargs.pop('offset', 0)
             limit = 10 #kwargs.pop('limit', 10)
@@ -55,19 +66,15 @@ class GraphQLQueries(graphene.ObjectType):
 
 
 class Subscription(graphene.ObjectType):
-    block_sub = graphene.List(BlockSchema, filters=BlockFilter())
+    subscribe_block = graphene.List(BlockSchema)
 
-    async def subscribe_block_sub(root, info, filters=None):
+    async def subscribe_subscribe_block(root, info):
         async with broadcast.subscribe(channel="blocks") as subscriber:
             async for event in subscriber:
                 if event.message:
                     with SessionManager(session_cls=SessionLocal) as session:
                         query = session.query(Block)
                         query = query.filter(Block.id > int(event.message))
-
-                        if filters is not None:
-                            query = BlockFilter.filter(info, query, filters)
-
                         query = query.order_by(Block.id.desc()).offset(0).limit(10)
                         items = query.all()
                         if items:

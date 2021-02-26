@@ -41,10 +41,8 @@ async def poll_db(loop):
         async with conn.cursor() as cur:
             await cur.execute(f"SELECT MAX(bt.id) FROM data_block_total bt")
             res = await cur.fetchall()
-            if cache.last_block_id == -1:
-                #print("initial block_id tip: ", res[0][0])
-                cache.last_block_id = res[0][0]
-            elif res and res[0][0] > cache.last_block_id:
+
+            if res and res[0][0] > cache.last_block_id:
                 #print("send block_id tip: ", res[0][0])
                 await broadcast.publish(channel="blocks", message=f"{cache.last_block_id}")
                 cache.last_block_id = res[0][0]

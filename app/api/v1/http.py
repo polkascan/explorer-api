@@ -20,68 +20,68 @@ def test_db(db: Session = Depends(get_db)) -> Any:
     item = db.query(Block).first()
     return {"result": "OK", "id": item.id}
 
-
-@app.get("/test/blockie/{block_id}")
-def test_db(block_id, db: Session = Depends(get_db)) -> Any:
-    from app.models.harvester import Block, BlockTotal
-    b = Block(
-        id=block_id,
-        parent_id=0,
-        hash=block_id,
-        parent_hash=block_id,
-        state_root=block_id,
-        extrinsics_root=block_id,
-        count_extrinsics=1,
-        count_extrinsics_unsigned=1,
-        count_extrinsics_signed=1,
-        count_extrinsics_error=1,
-        count_extrinsics_success=1,
-        count_extrinsics_signedby_address=1,
-        count_extrinsics_signedby_index=1,
-        count_events=1,
-        count_events_system=1,
-        count_events_module=1,
-        count_events_extrinsic=1,
-        count_events_finalization=1,
-        count_accounts=1,
-        count_accounts_new=1,
-        count_accounts_reaped =1,
-        count_sessions_new=1,
-        count_contracts_new =1,
-        count_log=1,
-        range10000=1,
-        range100000=1,
-        range1000000=1,
-        spec_version_id ="123"
-    )
-    bt = BlockTotal(
-        id=block_id,
-        session_id=1,
-        blocktime=1,
-        total_extrinsics=1,
-        total_extrinsics_success=1,
-        total_extrinsics_error=1,
-        total_extrinsics_signed=1,
-        total_extrinsics_unsigned=1,
-        total_extrinsics_signedby_address=1,
-        total_extrinsics_signedby_index=1,
-        total_events=1,
-        total_events_system=1,
-        total_events_module=1,
-        total_events_extrinsic=1,
-        total_events_finalization=1,
-        total_logs=1,
-        total_blocktime =1,
-        total_accounts=1,
-        total_accounts_new =1,
-        total_accounts_reaped=1,
-        total_sessions_new=1,
-        total_contracts_new=1
-    )
-    db.add(b)
-    db.add(bt)
-    db.commit()
-    return {"result": "OK", "block_id": b.id, "block_total_id": bt.id}
+#
+# @app.get("/test/blockie/{block_id}")
+# def test_db(block_id, db: Session = Depends(get_db)) -> Any:
+#     from app.models.harvester import Block, BlockTotal
+#     b = Block(
+#         id=block_id,
+#         parent_id=0,
+#         hash=block_id,
+#         parent_hash=block_id,
+#         state_root=block_id,
+#         extrinsics_root=block_id,
+#         count_extrinsics=1,
+#         count_extrinsics_unsigned=1,
+#         count_extrinsics_signed=1,
+#         count_extrinsics_error=1,
+#         count_extrinsics_success=1,
+#         count_extrinsics_signedby_address=1,
+#         count_extrinsics_signedby_index=1,
+#         count_events=1,
+#         count_events_system=1,
+#         count_events_module=1,
+#         count_events_extrinsic=1,
+#         count_events_finalization=1,
+#         count_accounts=1,
+#         count_accounts_new=1,
+#         count_accounts_reaped =1,
+#         count_sessions_new=1,
+#         count_contracts_new =1,
+#         count_log=1,
+#         range10000=1,
+#         range100000=1,
+#         range1000000=1,
+#         spec_version_id ="123"
+#     )
+#     bt = BlockTotal(
+#         id=block_id,
+#         session_id=1,
+#         blocktime=1,
+#         total_extrinsics=1,
+#         total_extrinsics_success=1,
+#         total_extrinsics_error=1,
+#         total_extrinsics_signed=1,
+#         total_extrinsics_unsigned=1,
+#         total_extrinsics_signedby_address=1,
+#         total_extrinsics_signedby_index=1,
+#         total_events=1,
+#         total_events_system=1,
+#         total_events_module=1,
+#         total_events_extrinsic=1,
+#         total_events_finalization=1,
+#         total_logs=1,
+#         total_blocktime =1,
+#         total_accounts=1,
+#         total_accounts_new =1,
+#         total_accounts_reaped=1,
+#         total_sessions_new=1,
+#         total_contracts_new=1
+#     )
+#     db.add(b)
+#     db.add(bt)
+#     db.commit()
+#     return {"result": "OK", "block_id": b.id, "block_total_id": bt.id}
 
 
 @app.get("/test/sentry")
@@ -97,7 +97,7 @@ ws_html = """
     </head>
     <body>
         <h1>WebSocket test</h1>
-        <textarea type="textarea" id="query-text" rows="4" cols="50">query allBlockies { allBlocks { id, hash } }</textarea>
+        <textarea type="textarea" id="query-text" rows="4" cols="50">query { getBlocks(filters: {idGte: 100}) { id, hash } }</textarea>
         <button onclick="sendQuery()">Send</button>
         <button onclick="subscribe()">Subscribe</button>
         <ul id='messages'>
@@ -150,7 +150,7 @@ ws_html = """
                     "type": GQL_START,
                     "id": "q1",
                     "payload": {
-                        "query": "subscription { blockSub {id, hash} }",
+                        "query": "subscription { subscribeBlock {id, hash} }",
                         "operationName": null,
                     },
                 };
