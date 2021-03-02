@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     DB_NAME: str
     POLLING_REDIS_HOST: str
     POLLING_REDIS_PORT: int
+    DEFAULT_PAGE_SIZE: int = 10
 
     SENTRY_DSN: Optional[HttpUrl] = None
 

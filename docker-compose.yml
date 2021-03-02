@@ -28,6 +28,8 @@ services:
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_PASSWORD=root
+      - POLLING_REDIS_PORT=6379
+      - POLLING_REDIS_HOST=redis
   api:
     build:
       context: .

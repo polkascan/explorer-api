@@ -1,7 +1,11 @@
+import json
+
 import graphene
 
 from graphene_sqlalchemy import SQLAlchemyObjectType
 from graphene_sqlalchemy_filter import FilterSet
+
+from sqlakeyset import get_page
 
 from substrateinterface.utils.ss58 import ss58_decode, ss58_encode
 
@@ -19,7 +23,6 @@ class BlockFilter(FilterSet):
 
 
 class BlocksFilter(FilterSet):
-    hash_until = graphene.String()
     hash_from = graphene.String()
 
     @staticmethod
@@ -38,11 +41,6 @@ class BlocksFilter(FilterSet):
                 query = query.filter(Block.id > block_nr)
 
         return query, None
-
-
-    @staticmethod
-    def hash_until_filter(info, query, value):
-        return BlocksFilter.hash_from(info, query, value, 'lte')
 
     @staticmethod
     def hash_from_filter(info, query, value):
@@ -102,3 +100,39 @@ class EventSchema(SQLAlchemyObjectType):
 
     class Meta:
         model = Event
+
+
+class PaginationType(graphene.ObjectType):
+    page_size = graphene.Int()
+    page_next = graphene.String()
+    page_prev = graphene.String()
+
+
+class AbstractPaginatedType(graphene.ObjectType):
+
+    @classmethod
+    def create_paginated_result(cls, query, page_key=None, page_size=10):
+        page_key = page_key and json.loads(page_key) or None
+        paged_qs = get_page(query, per_page=page_size, page=page_key)
+        page_info = PaginationType(
+            page_size=page_size,
+            page_next=json.dumps(paged_qs.paging.next),
+            page_prev=json.dumps(paged_qs.paging.previous),
+        )
+
+        return cls(objects=paged_qs, page_info=page_info)
+
+
+class BlockPaginatedType(AbstractPaginatedType):
+    page_info = graphene.Field(PaginationType)
+    objects = graphene.List(BlockSchema)
+
+
+class ExtrinsicsPaginatedType(AbstractPaginatedType):
+    page_info = graphene.Field(PaginationType)
+    objects = graphene.List(ExtrinsicSchema)
+
+
+class EventPaginatedType(AbstractPaginatedType):
+    page_info = graphene.Field(PaginationType)
+    objects = graphene.List(EventSchema)
