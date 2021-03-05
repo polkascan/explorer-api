@@ -9,6 +9,7 @@ local_env_ext = ".local.env"
 
 class Settings(BaseSettings):
     PROJECT_NAME: str
+    CHAIN_ID: str
     API_V1_STR: str = "/api/v1"
     SERVER_NAME: str
     SERVER_ADDR: str
