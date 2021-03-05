@@ -39,15 +39,17 @@ async def poll_db(loop):
         )
 
         async with conn.cursor() as cur:
-            await cur.execute(f"SELECT MAX(bt.id) FROM data_block_total bt")
-            res = await cur.fetchall()
-
-            if res and res[0][0] > cache.last_block_id:
-                #print("send block_id tip: ", res[0][0], f"{os.environ['CHAIN_ID']}-last-block")
-                cache.last_block_id = res[0][0]
-                await broadcast.publish(channel=f"{os.environ['CHAIN_ID']}-last-block", message=f"{cache.last_block_id}")
+            if cache.last_block_id == -1:
+                await cur.execute(f"SELECT MAX(bt.id) FROM data_block_total bt")
             else:
-                #print("no updates..")
+                await cur.execute(f"SELECT bt.id FROM data_block_total bt WHERE bt.id > {cache.last_block_id} ORDER BY bt.id LIMIT 100")
+
+            res = await cur.fetchall()
+            if res and res[-1][0] > cache.last_block_id:
+                blocks = ",".join([str(x[0]) for x in res])
+                await broadcast.publish(channel=f"{os.environ['CHAIN_ID']}-last-block", message=f"{blocks}")
+                cache.last_block_id = res[-1][0]
+            else:
                 pass
 
         conn.close()

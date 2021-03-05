@@ -65,10 +65,10 @@ class Subscription(graphene.ObjectType):
             async for event in subscriber:
                 if event.message:
                     with SessionManager(session_cls=SessionLocal) as session:
+                        block_ids = event.message.split(",")
                         query = session.query(Block)
-                        query = query.filter(Block.id == int(event.message))
-                        item = query.one_or_none()
-                        if item:
+                        query = query.filter(Block.id.in_(block_ids))
+                        for item in query:
                             yield item
 
 
