@@ -150,7 +150,7 @@ ws_html = """
                     "type": GQL_START,
                     "id": "q1",
                     "payload": {
-                        "query": "subscription { subscribeBlock {id, hash} }",
+                        "query": "subscription { subscribeNewBlock {id, hash} }",
                         "operationName": null,
                     },
                 };

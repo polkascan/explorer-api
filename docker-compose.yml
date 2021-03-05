@@ -30,6 +30,7 @@ services:
       - DB_PASSWORD=root
       - POLLING_REDIS_PORT=6379
       - POLLING_REDIS_HOST=redis
+      - CHAIN_ID=polkadot
   api:
     build:
       context: .
@@ -59,3 +60,4 @@ services:
       - POLLING_REDIS_PORT=6379
       - API_SQLA_DIALECT=mysql
       - API_SQLA_DRIVER=mysqlconnector
+      - CHAIN_ID=polkadot

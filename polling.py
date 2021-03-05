@@ -43,9 +43,9 @@ async def poll_db(loop):
             res = await cur.fetchall()
 
             if res and res[0][0] > cache.last_block_id:
-                #print("send block_id tip: ", res[0][0])
-                await broadcast.publish(channel="blocks", message=f"{cache.last_block_id}")
+                #print("send block_id tip: ", res[0][0], f"{os.environ['CHAIN_ID']}-last-block")
                 cache.last_block_id = res[0][0]
+                await broadcast.publish(channel=f"{os.environ['CHAIN_ID']}-last-block", message=f"{cache.last_block_id}")
             else:
                 #print("no updates..")
                 pass

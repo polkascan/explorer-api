@@ -61,7 +61,7 @@ class Subscription(graphene.ObjectType):
     subscribe_new_block = graphene.Field(BlockSchema)
 
     async def subscribe_subscribe_new_block(root, info):
-        async with broadcast.subscribe(channel="blocks") as subscriber:
+        async with broadcast.subscribe(channel=f"{settings.CHAIN_ID}-last-block") as subscriber:
             async for event in subscriber:
                 if event.message:
                     with SessionManager(session_cls=SessionLocal) as session:
