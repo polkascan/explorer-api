@@ -59,5 +59,6 @@ services:
       - POLLING_REDIS_HOST=redis
       - POLLING_REDIS_PORT=6379
       - API_SQLA_DIALECT=mysql
-      - API_SQLA_DRIVER=mysqlconnector
+      - API_SQLA_DRIVER=pymysql
+      - API_SQLA_DRIVER_OPTS=?charset=utf8mb4
       - CHAIN_ID=polkadot

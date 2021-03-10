@@ -10,9 +10,7 @@ from ... import broadcast, settings
 from ...db import SessionManager
 from ...session import SessionLocal
 
-from app.models.harvester import Block
-from app.models.harvester import Extrinsic
-from app.models.harvester import Event
+from app.models.explorer import Block, Extrinsic, Event
 
 
 class GraphQLQueries(graphene.ObjectType):
@@ -28,7 +26,7 @@ class GraphQLQueries(graphene.ObjectType):
             if filters is not None:
                 query = BlockFilter.filter(info, query, filters).one()
             else:
-                query = query.order_by(Block.id.desc()).first()
+                query = query.order_by(Block.number.desc()).first()
 
             return query
 
@@ -38,7 +36,7 @@ class GraphQLQueries(graphene.ObjectType):
             if filters is not None:
                 query = BlocksFilter.filter(info, query, filters)
 
-            return BlockPaginatedType.create_paginated_result(query.order_by(Block.id.desc()), page_key, page_size)
+            return BlockPaginatedType.create_paginated_result(query.order_by(Block.number.desc()), page_key, page_size)
 
     def resolve_all_extrinsics(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -46,7 +44,7 @@ class GraphQLQueries(graphene.ObjectType):
             if filters is not None:
                 query = ExtrinsicFilter.filter(info, query, filters)
 
-            return ExtrinsicsPaginatedType.create_paginated_result(query.order_by(Extrinsic.id.desc()), page_key, page_size)
+            return ExtrinsicsPaginatedType.create_paginated_result(query.order_by(Extrinsic.block_number.desc()), page_key, page_size)
 
     def resolve_all_events(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -54,7 +52,7 @@ class GraphQLQueries(graphene.ObjectType):
             if filters is not None:
                 query = EventFilter.filter(info, query, filters)
 
-            return EventPaginatedType.create_paginated_result(query.order_by(Event.id.desc()), page_key, page_size)
+            return EventPaginatedType.create_paginated_result(query.order_by(Event.block_number.desc()), page_key, page_size)
 
 
 class Subscription(graphene.ObjectType):
@@ -62,12 +60,17 @@ class Subscription(graphene.ObjectType):
 
     async def subscribe_subscribe_new_block(root, info):
         async with broadcast.subscribe(channel=f"{settings.CHAIN_ID}-last-block") as subscriber:
+            with SessionManager(session_cls=SessionLocal) as session:
+                latest_block = session.query(Block).order_by(Block.number.desc()).first()
+                if latest_block:
+                    yield latest_block
+
             async for event in subscriber:
                 if event.message:
                     with SessionManager(session_cls=SessionLocal) as session:
                         block_ids = event.message.split(",")
                         query = session.query(Block)
-                        query = query.filter(Block.id.in_(block_ids))
+                        query = query.filter(Block.number.in_(block_ids))
                         for item in query:
                             yield item
 

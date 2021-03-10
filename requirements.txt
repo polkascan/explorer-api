@@ -1,8 +1,7 @@
-alembic==1.4.3
 fastapi==0.63.0
 graphene==3.0b7
 git+https://github.com/matthijsb/graphene-sqlalchemy.git
-mysql-connector-python==8.0.22
+PyMySQL==1.0.2
 python-dotenv==0.15.0
 pytest==6.2.2
 sentry-sdk==0.19.5

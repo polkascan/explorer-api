@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
     API_SQLA_DIALECT: str
     API_SQLA_DRIVER: str
+    API_SQLA_DRIVER_OPTS: str
     DB_USERNAME: str
     DB_PASSWORD: str
     DB_HOST: str
@@ -55,7 +56,7 @@ class Settings(BaseSettings):
 
     @property
     def sqla_uri(self):
-        return f"{self.API_SQLA_DIALECT}+{self.API_SQLA_DRIVER}://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return f"{self.API_SQLA_DIALECT}+{self.API_SQLA_DRIVER}://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}{self.API_SQLA_DRIVER_OPTS}"
 
     @property
     def SERVER_URI(self):

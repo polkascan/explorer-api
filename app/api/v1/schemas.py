@@ -9,7 +9,7 @@ from sqlakeyset import get_page
 
 from substrateinterface.utils.ss58 import ss58_decode, ss58_encode
 
-from app.models.harvester import Block, Extrinsic, Event
+from app.models.explorer import Block, Extrinsic, Event
 
 
 class BlockFilter(FilterSet):
@@ -18,7 +18,7 @@ class BlockFilter(FilterSet):
         model = Block
         fields = {
             'hash':  ['eq',],
-            'id':  ['eq',],
+            'number':  ['eq',],
         }
 
 
@@ -28,17 +28,17 @@ class BlocksFilter(FilterSet):
     @staticmethod
     def hash_from(info, query, value, direction):
         if value:
-            sub_select = query.session.query(Block.id)
+            sub_select = query.session.query(Block.number)
             block_nr = sub_select.filter(Block.hash == value).one()
             block_nr = block_nr and block_nr[0] or None
             if direction == 'lte':
-                query = query.filter(Block.id <= block_nr)
+                query = query.filter(Block.number <= block_nr)
             elif direction == 'lt':
-                query = query.filter(Block.id < block_nr)
+                query = query.filter(Block.number < block_nr)
             elif direction == 'gte':
-                query = query.filter(Block.id >= block_nr)
+                query = query.filter(Block.number >= block_nr)
             elif direction == 'gt':
-                query = query.filter(Block.id > block_nr)
+                query = query.filter(Block.number > block_nr)
 
         return query, None
 
@@ -50,17 +50,23 @@ class BlocksFilter(FilterSet):
         model = Block
         fields = {
             'hash':  ['eq',],
-            'id':  ['eq', 'gt', 'lt', 'gte', 'lte'],
+            'number':  ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 
 class BlockSchema(SQLAlchemyObjectType):
+    hash = graphene.String()
+    parent_hash = graphene.String()
+    state_root = graphene.String()
+    extrinsics_root = graphene.String()
+    author_account_id = graphene.String()
+
     class Meta:
         model = Block
 
 
 class ExtrinsicFilter(FilterSet):
-    address = graphene.String(description='')
+    multi_address_account_id = graphene.String(description='')
 
     class Meta:
         model = Extrinsic
@@ -72,22 +78,32 @@ class ExtrinsicFilter(FilterSet):
         }
 
     @staticmethod
-    def address_filter(info, query, value):
+    def multi_address_account_id_filter(info, query, value):
         """ """
-        return Extrinsic.address == ss58_decode(value)
+        return Extrinsic.multi_address_account_id == ss58_decode(value)
 
 
 class ExtrinsicSchema(SQLAlchemyObjectType):
+    hash = graphene.String()
+    version_info = graphene.String()
+    call = graphene.String()
+    call_hash = graphene.String()
+    multi_address_account_id = graphene.String()
+    multi_address_raw = graphene.String()
+    multi_address_address_32 = graphene.String()
+    multi_address_address_20 = graphene.String()
+    signature = graphene.String()
+    block_hash = graphene.String()
 
-    def resolve_address(self, info):
-        return ss58_encode(self.address)
+
+    def resolve_multi_address_account_id(self, info):
+        return ss58_encode(self.multi_address_account_id)
 
     class Meta:
         model = Extrinsic
 
 
 class EventFilter(FilterSet):
-
     class Meta:
         model = Event
         fields = {
@@ -97,6 +113,8 @@ class EventFilter(FilterSet):
 
 
 class EventSchema(SQLAlchemyObjectType):
+    event = graphene.String()
+    block_hash = graphene.String()
 
     class Meta:
         model = Event
