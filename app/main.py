@@ -25,5 +25,5 @@ if settings.SENTRY_DSN:
     app.add_middleware(SentryAsgiMiddleware)
 
 
-from app.api.v1 import graphql
-from app.api.v1 import http
+from app.api import graphql
+from app.api import http

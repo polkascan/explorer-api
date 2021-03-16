@@ -18,7 +18,7 @@ sys.path.append(BASE_DIR)
 
 class CACHE():
     def __init__(self):
-        self.last_block_id = -1
+        self.last_block_number = -1
 
 
 broadcast = Broadcast(f"redis://{os.environ['POLLING_REDIS_HOST']}:{os.environ['POLLING_REDIS_PORT']}")
@@ -39,16 +39,24 @@ async def poll_db(loop):
         )
 
         async with conn.cursor() as cur:
-            if cache.last_block_id == -1:
-                await cur.execute(f"SELECT MAX(bt.id) FROM data_block_total bt")
+            if cache.last_block_number == -1:
+                await cur.execute(f"SELECT MAX(bt.number) FROM explorer_block bt")
             else:
-                await cur.execute(f"SELECT bt.id FROM data_block_total bt WHERE bt.id > {cache.last_block_id} ORDER BY bt.id LIMIT 100")
+                await cur.execute(f"""
+                    SELECT
+                        bt.number
+                    FROM
+                        explorer_block bt
+                    WHERE
+                        bt.number > {cache.last_block_number} 
+                    ORDER BY
+                        bt.number LIMIT 100""")
 
             res = await cur.fetchall()
-            if res and res[-1][0] > cache.last_block_id:
+            if res and res[-1][0] and res[-1][0] > cache.last_block_number:
                 blocks = ",".join([str(x[0]) for x in res])
                 await broadcast.publish(channel=f"{os.environ['CHAIN_ID']}-last-block", message=f"{blocks}")
-                cache.last_block_id = res[-1][0]
+                cache.last_block_number = res[-1][0]
             else:
                 pass
 
