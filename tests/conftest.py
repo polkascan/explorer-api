@@ -2,10 +2,11 @@
 # import pytest
 #
 # from sqlalchemy import create_engine
+#
 # from sqlalchemy.orm import sessionmaker
 #
 # from sqlalchemy.ext.compiler import compiles
-# from sqlalchemy.dialects.mysql import MEDIUMINT, INTEGER, TEXT
+# from sqlalchemy.dialects.mysql import MEDIUMINT, INTEGER, TEXT, TINYINT
 #
 # from fastapi.testclient import TestClient
 # from fastapi import FastAPI
@@ -16,6 +17,11 @@
 # from app.api.graphql.queries import GraphQLQueries
 # from app.api.graphql.subscriptions import Subscription
 #
+#
+# @compiles(TINYINT, 'sqlite')
+# def compile_TINYINT(element, compiler, **kw):
+#     """ Handles mysql TINYINT datatype as Integer in sqlite.  """
+#     return compiler.visit_integer(element, **kw)
 #
 # @compiles(MEDIUMINT, 'sqlite')
 # def compile_MEDIUMINT(element, compiler, **kw):
@@ -43,7 +49,6 @@
 #     return compiler.visit_VARBINARY(element, **kw)
 #
 #
-#
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 # engine = create_engine(
 #     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
@@ -52,10 +57,11 @@
 #
 # BaseModel.metadata.create_all(bind=engine)
 #
-# app = FastAPI(title=settings.PROJECT_NAME)
-# graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries, subscription=Subscription))
-# app.add_route("/graphql", graphql_app)
-# app.add_websocket_route("/graphql-ws", graphql_app)
+# #app = FastAPI(title=settings.PROJECT_NAME)
+# #graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries, subscription=Subscription))
+# #app.add_route("/graphql", graphql_app)
+# #app.add_websocket_route("/graphql-ws", graphql_app)
+# from app import app
 #
 #
 # @pytest.fixture

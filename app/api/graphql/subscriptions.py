@@ -32,7 +32,11 @@ class Subscription(graphene.ObjectType):
 
     async def subscribe_subscribe_new_event(root, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
-            latest_event = session.query(Event).order_by(Event.block_number.desc(), Event.event_idx.desc()).first()
+            latest_events = session.query(Event).order_by(Event.block_number.desc(), Event.event_idx.desc())
+            if filters is not None:
+                latest_events = EventFilter.filter(info, latest_events, filters)
+
+            latest_event = latest_events.first()
             if latest_event:
                 yield latest_event
 
@@ -52,7 +56,10 @@ class Subscription(graphene.ObjectType):
 
     async def subscribe_subscribe_new_extrinsic(root, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
-            latest_extrinsic = session.query(Extrinsic).order_by(Extrinsic.block_number.desc(), Extrinsic.extrinsic_idx.desc()).first()
+            latest_extrinsics = session.query(Extrinsic).order_by(Extrinsic.block_number.desc(), Extrinsic.extrinsic_idx.desc())
+            if filters is not None:
+                latest_extrinsics = EventFilter.filter(info, latest_extrinsics, filters)
+            latest_extrinsic = latest_extrinsics.first()
             if latest_extrinsic:
                 yield latest_extrinsic
 
