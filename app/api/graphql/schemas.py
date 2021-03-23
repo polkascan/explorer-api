@@ -7,6 +7,7 @@ from app.models.explorer import Block, Extrinsic, Event
 
 class BlockSchema(SQLAlchemyObjectType):
     # Note: we override these specific fields to mark them as string instead of binary
+    number = graphene.Int()
     hash = graphene.String()
     parent_hash = graphene.String()
     state_root = graphene.String()

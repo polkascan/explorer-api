@@ -42,7 +42,7 @@ class Subscription(graphene.ObjectType):
                     with SessionManager(session_cls=SessionLocal) as session:
                         event_records = event.message.split(",")
                         event_records = event_records[-100:] # Sanity precaution
-                        query = session.query(Event).filter(Block.number.in_(event_records))
+                        query = session.query(Event).filter(Event.block_number.in_(event_records))
 
                         if filters is not None:
                             query = EventFilter.filter(info, query, filters)
@@ -62,7 +62,7 @@ class Subscription(graphene.ObjectType):
                     with SessionManager(session_cls=SessionLocal) as session:
                         extrinsic_records = event.message.split(",")
                         extrinsic_records = extrinsic_records[-100:] # Sanity precaution
-                        query = session.query(Extrinsic).filter(Block.number.in_(extrinsic_records))
+                        query = session.query(Extrinsic).filter(Extrinsic.block_number.in_(extrinsic_records))
 
                         if filters is not None:
                             query = EventFilter.filter(info, query, filters)
