@@ -14,10 +14,10 @@ class GraphQLQueries(graphene.ObjectType):
 
     get_block = graphene.Field(BlockSchema, filters=BlockFilter())
     get_blocks = graphene.Field(BlockPaginatedType, filters=BlocksFilter(), page_key=graphene.String(), page_size=graphene.Int())
-    get_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter(), page_key=graphene.String(), page_size=graphene.Int())
+    get_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter())
     get_extrinsics = graphene.Field(ExtrinsicsPaginatedType, filters=ExtrinsicFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_event = graphene.Field(EventSchema, filters=EventFilter())
-    get_events = graphene.List(EventPaginatedType, filters=EventsFilter(), page_key=graphene.String(), page_size=graphene.Int())
+    get_events = graphene.Field(EventPaginatedType, filters=EventsFilter(), page_key=graphene.String(), page_size=graphene.Int())
 
     def resolve_get_block(self, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:

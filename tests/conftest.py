@@ -45,7 +45,6 @@
 #
 #
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-#
 # engine = create_engine(
 #     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 # )
@@ -53,12 +52,8 @@
 #
 # BaseModel.metadata.create_all(bind=engine)
 #
-# app = FastAPI(
-#     title=settings.PROJECT_NAME
-# )
-#
+# app = FastAPI(title=settings.PROJECT_NAME)
 # graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries, subscription=Subscription))
-#
 # app.add_route("/graphql", graphql_app)
 # app.add_websocket_route("/graphql-ws", graphql_app)
 #
