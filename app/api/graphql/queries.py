@@ -15,9 +15,9 @@ class GraphQLQueries(graphene.ObjectType):
     get_block = graphene.Field(BlockSchema, filters=BlockFilter())
     get_blocks = graphene.Field(BlockPaginatedType, filters=BlocksFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter(), page_key=graphene.String(), page_size=graphene.Int())
-    all_extrinsics = graphene.Field(ExtrinsicsPaginatedType, filters=ExtrinsicFilter(), page_key=graphene.String(), page_size=graphene.Int())
+    get_extrinsics = graphene.Field(ExtrinsicsPaginatedType, filters=ExtrinsicFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_event = graphene.Field(EventSchema, filters=EventFilter())
-    all_events = graphene.List(EventPaginatedType, filters=EventsFilter(), page_key=graphene.String(), page_size=graphene.Int())
+    get_events = graphene.List(EventPaginatedType, filters=EventsFilter(), page_key=graphene.String(), page_size=graphene.Int())
 
     def resolve_get_block(self, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -36,7 +36,7 @@ class GraphQLQueries(graphene.ObjectType):
                 query = BlocksFilter.filter(info, query, filters)
             return BlockPaginatedType.create_paginated_result(query.order_by(Block.number.desc()), page_key, page_size)
 
-    def resolve_all_extrinsics(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
+    def resolve_get_extrinsics(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
         with SessionManager(session_cls=SessionLocal) as session:
             query = session.query(Extrinsic)
             if filters is not None:
@@ -57,7 +57,7 @@ class GraphQLQueries(graphene.ObjectType):
 
             return query
 
-    def resolve_all_events(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
+    def resolve_get_events(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
         with SessionManager(session_cls=SessionLocal) as session:
             query = session.query(Event)
             if filters is not None:

@@ -1,18 +1,21 @@
-# from app.models import Base
+# import graphene
+# import pytest
+#
 # from sqlalchemy import create_engine
 # from sqlalchemy.orm import sessionmaker
 #
-#
-# #https://stackoverflow.com/questions/10558965/how-do-i-change-column-type-on-sqlalchemy-declarative-model-dynamically
-# #from sqlalchemy.dialects.sqlite import INTEGER, SMALLINT, TEXT
-# from app.models import field_types
-# # field_types.INTEGER = INTEGER
-# # field_types.TINYINT = SMALLINT
-# # field_types.HashBinary = TEXT
-# # field_types.HashVarBinary = TEXT
-#
 # from sqlalchemy.ext.compiler import compiles
 # from sqlalchemy.dialects.mysql import MEDIUMINT, INTEGER, TEXT
+#
+# from fastapi.testclient import TestClient
+# from fastapi import FastAPI
+# from starlette_graphene3 import GraphQLApp
+#
+# from app.db import BaseModel
+# from app.settings import settings
+# from app.api.graphql.queries import GraphQLQueries
+# from app.api.graphql.subscriptions import Subscription
+#
 #
 # @compiles(MEDIUMINT, 'sqlite')
 # def compile_MEDIUMINT(element, compiler, **kw):
@@ -39,11 +42,6 @@
 #     """ Handles mysql VARBIN datatype as text in sqlite.  """
 #     return compiler.visit_VARBINARY(element, **kw)
 #
-# import pytest
-#
-# from starlette.testclient import TestClient
-#
-# from app import app
 #
 #
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -53,9 +51,17 @@
 # )
 # TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 #
-# Base.metadata.create_all(bind=engine)
+# BaseModel.metadata.create_all(bind=engine)
 #
-# import pdb;pdb.set_trace()
+# app = FastAPI(
+#     title=settings.PROJECT_NAME
+# )
+#
+# graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries, subscription=Subscription))
+#
+# app.add_route("/graphql", graphql_app)
+# app.add_websocket_route("/graphql-ws", graphql_app)
+#
 #
 # @pytest.fixture
 # def client():
