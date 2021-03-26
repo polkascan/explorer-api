@@ -23,7 +23,7 @@ class CACHE():
         self.last_block_number = -1
 
 
-broadcast = Broadcast(f"redis://{os.environ['POLLING_REDIS_HOST']}:{os.environ['POLLING_REDIS_PORT']}")
+broadcast = Broadcast(os.environ['BROADCAST_URI'])
 cache = CACHE()
 
 

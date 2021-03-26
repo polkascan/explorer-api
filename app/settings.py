@@ -22,8 +22,6 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
-    POLLING_REDIS_HOST: str
-    POLLING_REDIS_PORT: int
     DEFAULT_PAGE_SIZE: int = 10
     BROADCAST_URI: str
 
