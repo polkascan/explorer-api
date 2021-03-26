@@ -21,7 +21,7 @@ WORKDIR /usr/src
 RUN pip install --upgrade pip
 
 ## add requirements
-COPY ./requirements.txt /usr/src/requirements.txt
+COPY ./requirements_api.txt /usr/src/requirements.txt
 
 ## install requirements
 RUN pip3 install -r requirements.txt

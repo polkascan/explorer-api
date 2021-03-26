@@ -16,9 +16,7 @@ class Settings(BaseSettings):
     SERVER_PORT: int
     WEBSOCKET_URI: str
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
-    API_SQLA_DIALECT: str
-    API_SQLA_DRIVER: str
-    API_SQLA_DRIVER_OPTS: str
+    API_SQLA_URI: str
     DB_USERNAME: str
     DB_PASSWORD: str
     DB_HOST: str
@@ -27,6 +25,7 @@ class Settings(BaseSettings):
     POLLING_REDIS_HOST: str
     POLLING_REDIS_PORT: int
     DEFAULT_PAGE_SIZE: int = 10
+    BROADCAST_URI: str
 
     SENTRY_DSN: Optional[HttpUrl] = None
 
@@ -55,10 +54,6 @@ class Settings(BaseSettings):
         return v
 
     @property
-    def sqla_uri(self):
-        return f"{self.API_SQLA_DIALECT}+{self.API_SQLA_DRIVER}://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}{self.API_SQLA_DRIVER_OPTS}"
-
-    @property
     def SERVER_URI(self):
         base = self.SERVER_ADDR
         if self.SERVER_PORT:
@@ -72,13 +67,10 @@ class Settings(BaseSettings):
             base += f":{self.SERVER_PORT}"
         return base
 
-    @property
-    def broadcast_uri(self):
-        return f"redis://{self.POLLING_REDIS_HOST}:{self.POLLING_REDIS_PORT}"
-
     class Config:
         case_sensitive = True
         env_file = '.env'
         env_file_encoding = 'utf-8'
+
 
 settings = Settings()

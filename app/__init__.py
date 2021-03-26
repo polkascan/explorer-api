@@ -3,9 +3,7 @@ from broadcaster import Broadcast
 
 from app.settings import settings
 
-
-broadcast = Broadcast(settings.broadcast_uri)
-
+broadcast = Broadcast(settings.BROADCAST_URI)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

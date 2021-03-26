@@ -55,6 +55,7 @@ class ExtrinsicFilter(FilterSet):
         model = Extrinsic
         fields = {
             'block_number': ['eq',],
+            'extrinsic_idx': ['eq',],
             'call_module': ['eq',],
             'call_name': ['eq',],
             'signed': ['eq',],

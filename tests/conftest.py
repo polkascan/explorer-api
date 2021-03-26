@@ -1,21 +1,21 @@
-# import graphene
+# import os
+# import sys
+#
 # import pytest
-#
-# from sqlalchemy import create_engine
-#
-# from sqlalchemy.orm import sessionmaker
 #
 # from sqlalchemy.ext.compiler import compiles
 # from sqlalchemy.dialects.mysql import MEDIUMINT, INTEGER, TEXT, TINYINT
 #
 # from fastapi.testclient import TestClient
-# from fastapi import FastAPI
-# from starlette_graphene3 import GraphQLApp
 #
+#
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+#
+# if not os.path.exists(".test.env"):
+#     raise Exception("Please specify a .test.env file")
+#
+# from app import session
 # from app.db import BaseModel
-# from app.settings import settings
-# from app.api.graphql.queries import GraphQLQueries
-# from app.api.graphql.subscriptions import Subscription
 #
 #
 # @compiles(TINYINT, 'sqlite')
@@ -49,22 +49,11 @@
 #     return compiler.visit_VARBINARY(element, **kw)
 #
 #
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-# engine = create_engine(
-#     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-# )
-# TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-#
-# BaseModel.metadata.create_all(bind=engine)
-#
-# #app = FastAPI(title=settings.PROJECT_NAME)
-# #graphql_app = GraphQLApp(schema=graphene.Schema(query=GraphQLQueries, subscription=Subscription))
-# #app.add_route("/graphql", graphql_app)
-# #app.add_websocket_route("/graphql-ws", graphql_app)
-# from app import app
-#
-#
 # @pytest.fixture
 # def client():
+#     from app import app
 #     with TestClient(app) as client:
+#         BaseModel.metadata.drop_all(bind=session.engine)
+#         BaseModel.metadata.create_all(bind=session.engine)
+#         import pdb;pdb.set_trace()
 #         yield client
