@@ -1,7 +1,32 @@
 import codecs
+from datetime import timezone
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.mysql import INTEGER, NUMERIC, TINYINT
+
+
+class UTCDateTime(sa.types.TypeDecorator):
+
+    impl = sa.types.DateTime
+
+    def process_bind_param(self, value, engine):
+        if value is None:
+            return
+        if value.utcoffset() is None:
+            raise ValueError(
+                'Got naive datetime while timezone-aware is expected'
+            )
+        return value.astimezone(timezone.utc)
+
+    def result_processor(self, dialect, coltype):
+        """Return a processor that encodes hex values."""
+        def process(value):
+            return value.replace(tzinfo=timezone.utc)
+        return process
+
+    def adapt(self, impltype):
+        """Produce an adapted form of this type, given an impl class."""
+        return UTCDateTime()
 
 
 class HashBinary(sa.types.BINARY):

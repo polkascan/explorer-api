@@ -20,7 +20,7 @@ import sqlalchemy as sa
 
 from app.db import BaseModel
 
-from .field_types import INTEGER, NUMERIC, TINYINT, HashBinary, HashVarBinary
+from .field_types import INTEGER, NUMERIC, TINYINT, HashBinary, HashVarBinary, UTCDateTime
 
 
 class Block(BaseModel):
@@ -32,7 +32,7 @@ class Block(BaseModel):
     parent_hash = sa.Column(HashBinary(32), nullable=False)
     state_root = sa.Column(HashBinary(32), nullable=False)
     extrinsics_root = sa.Column(HashBinary(32), nullable=False)
-    datetime = sa.Column(sa.DateTime(timezone=True), nullable=True)
+    datetime = sa.Column(UTCDateTime(timezone=True), nullable=True)
     author_authority_index = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
     author_slot_number = sa.Column(NUMERIC(precision=65, scale=0, unsigned=True), nullable=True)
     author_account_id = sa.Column(HashBinary(32), nullable=True)
@@ -65,7 +65,7 @@ class Event(BaseModel):
     phase_name = sa.Column(sa.String(255), nullable=True)
     attributes = sa.Column(sa.JSON(), nullable=True)
     topics = sa.Column(sa.JSON(), nullable=True)
-    block_datetime = sa.Column(sa.DateTime(timezone=True), nullable=True)
+    block_datetime = sa.Column(UTCDateTime(timezone=True), nullable=True)
     block_hash = sa.Column(HashBinary(32), nullable=False)
     spec_name = sa.Column(sa.String(64), nullable=True)
     spec_version = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
@@ -101,7 +101,7 @@ class Extrinsic(BaseModel):
     era_birth = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
     era_death = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
     tip = sa.Column(NUMERIC(precision=65, scale=0, unsigned=True), nullable=True)
-    block_datetime = sa.Column(sa.DateTime(timezone=True), nullable=True)
+    block_datetime = sa.Column(UTCDateTime(timezone=True), nullable=True)
     block_hash = sa.Column(HashBinary(32), nullable=False)
     spec_name = sa.Column(sa.String(64), nullable=True)
     spec_version = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)

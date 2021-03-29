@@ -36,6 +36,16 @@ class GraphQLQueries(graphene.ObjectType):
                 query = BlocksFilter.filter(info, query, filters)
             return BlockPaginatedType.create_paginated_result(query.order_by(Block.number.desc()), page_key, page_size)
 
+    def resolve_get_extrinsic(self, info, filters=None):
+        with SessionManager(session_cls=SessionLocal) as session:
+            query = session.query(Extrinsic)
+            if filters is not None:
+                query = ExtrinsicFilter.filter(info, query, filters).one()
+            else:
+                query = query.order_by(Extrinsic.block_number.desc()).first()
+
+            return query
+
     def resolve_get_extrinsics(self, info, filters=None, page_key=graphene.String(), page_size=settings.DEFAULT_PAGE_SIZE):
         with SessionManager(session_cls=SessionLocal) as session:
             query = session.query(Extrinsic)

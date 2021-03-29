@@ -1,3 +1,5 @@
+from datetime import timezone
+
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
@@ -13,6 +15,10 @@ class BlockSchema(SQLAlchemyObjectType):
     state_root = graphene.String()
     extrinsics_root = graphene.String()
     author_account_id = graphene.String()
+    datetime = graphene.String()
+
+    def resolve_datetime(self, info):
+        return self.datetime.replace(tzinfo=timezone.utc).isoformat()
 
     class Meta:
         model = Block
@@ -30,6 +36,10 @@ class ExtrinsicSchema(SQLAlchemyObjectType):
     multi_address_address_20 = graphene.String()
     signature = graphene.String()
     block_hash = graphene.String()
+    block_datetime = graphene.String()
+
+    def resolve_block_datetime(self, info):
+        return self.resolve_block_datetime.replace(tzinfo=timezone.utc).isoformat()
 
     def resolve_multi_address_account_id(self, info):
         return ss58_encode(self.multi_address_account_id)
@@ -42,6 +52,10 @@ class EventSchema(SQLAlchemyObjectType):
     # Note: we override these specific fields to mark them as string instead of binary
     event = graphene.String()
     block_hash = graphene.String()
+    block_datetime = graphene.String()
+
+    def resolve_block_datetime(self, info):
+        return self.resolve_block_datetime.replace(tzinfo=timezone.utc).isoformat()
 
     class Meta:
         model = Event
