@@ -1,6 +1,9 @@
 import codecs
 from datetime import timezone
 
+from graphene_sqlalchemy.converter import convert_sqlalchemy_type
+from graphene import String
+
 import sqlalchemy as sa
 from sqlalchemy.dialects.mysql import INTEGER, NUMERIC, TINYINT
 
@@ -72,3 +75,14 @@ class HashVarBinary(sa.types.VARBINARY):
         """Produce an adapted form of this type, given an impl class."""
         return HashVarBinary()
 
+
+@convert_sqlalchemy_type.register(UTCDateTime)
+def convert_column_to_datetime(type, column, registry=None):
+    from graphene.types.datetime import DateTime
+    return DateTime
+
+
+@convert_sqlalchemy_type.register(HashBinary)
+@convert_sqlalchemy_type.register(HashVarBinary)
+def convert_column_to_string(type, column, registry=None):
+    return String
