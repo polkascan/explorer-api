@@ -4,6 +4,8 @@ from graphene_sqlalchemy_filter import FilterSet
 
 from substrateinterface.utils.ss58 import ss58_decode
 from app.models.explorer import Block, Extrinsic, Event
+from app.models.runtime import Runtime, RuntimeCallArgument, RuntimeCall, RuntimeConstant, RuntimeErrorMessage, \
+    RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, RuntimeType
 
 
 class BlockFilter(FilterSet):
@@ -83,4 +85,118 @@ class EventsFilter(FilterSet):
             'block_number':  ['eq',],
             'event_module':  ['eq',],
             'event_name':  ['eq',],
+        }
+
+
+class RuntimeFilter(FilterSet):
+    class Meta:
+        model = Runtime
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+        }
+
+
+class RuntimeCallFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeCall
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet':  ['eq',],
+        }
+
+
+class RuntimeCallArgumentFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeCallArgument
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet':  ['eq',],
+            'call_name':  ['eq',],
+        }
+
+
+class RuntimeConstantFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeConstant
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet':  ['eq',],
+            'const_name':  ['eq',],
+        }
+
+
+class RuntimeErrorMessageFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeErrorMessage
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet':  ['eq',],
+            'error_name':  ['eq',],
+        }
+
+
+class RuntimeEventFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeEvent
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet':  ['eq',],
+            'event_name':  ['eq',],
+        }
+
+
+class RuntimeEventAttributeFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeEventAttribute
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet':  ['eq',],
+        }
+
+
+class RuntimePalletFilter(FilterSet):
+
+    class Meta:
+        model = RuntimePallet
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet': ['eq', ],
+        }
+
+
+class RuntimeStorageFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeStorage
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet': ['eq', ],
+            'storage_name': ['eq', ],
+        }
+
+
+class RuntimeTypeFilter(FilterSet):
+
+    class Meta:
+        model = RuntimeType
+        fields = {
+            'spec_name':  ['eq',],
+            'spec_version':  ['eq',],
+            'pallet': ['eq', ],
+            'scale_type': ['eq', ],
         }

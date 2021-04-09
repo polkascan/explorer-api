@@ -3,7 +3,6 @@ import graphene
 from sqlakeyset import get_page
 
 from app import settings
-from app.api.graphql.schemas import BlockSchema, ExtrinsicSchema, EventSchema
 
 
 class PaginationType(graphene.ObjectType):
@@ -27,16 +26,9 @@ class AbstractPaginatedType(graphene.ObjectType):
         return cls(objects=paged_qs, page_info=page_info)
 
 
-class BlockPaginatedType(AbstractPaginatedType):
-    page_info = graphene.Field(PaginationType)
-    objects = graphene.List(BlockSchema)
+def CreatePaginatedType(schema):
+    class PaginatedType(AbstractPaginatedType):
+        page_info = graphene.Field(PaginationType)
+        objects = graphene.List(schema)
 
-
-class ExtrinsicsPaginatedType(AbstractPaginatedType):
-    page_info = graphene.Field(PaginationType)
-    objects = graphene.List(ExtrinsicSchema)
-
-
-class EventPaginatedType(AbstractPaginatedType):
-    page_info = graphene.Field(PaginationType)
-    objects = graphene.List(EventSchema)
+    return PaginatedType
