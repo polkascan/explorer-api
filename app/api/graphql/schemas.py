@@ -1,10 +1,8 @@
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
-#
-# from substrateinterface.utils.ss58 import ss58_encode
-# from app.models.explorer import Block, Extrinsic, Event
-# from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
-#     RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, RuntimeType
+
+from substrateinterface.utils.ss58 import ss58_encode
+from app.models.explorer import  Extrinsic
 from sqlalchemy import INTEGER
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
@@ -29,6 +27,17 @@ def create_schema(query_name, model_, schema_overrides):
             dct[key.name] = val
 
     return type(f"Schema{query_name}", (SQLAlchemyObjectType, ), dct)
+
+
+class ExtrinsicSchema(SQLAlchemyObjectType):
+    multi_address_account_id = graphene.String()
+    block_number = graphene.Int()
+
+    def resolve_multi_address_account_id(self, info):
+        return ss58_encode(self.multi_address_account_id)
+
+    class Meta:
+        model = Extrinsic
 
 
 # class BlockSchema(SQLAlchemyObjectType):

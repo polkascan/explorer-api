@@ -37,11 +37,11 @@ class HashBinary(sa.types.BINARY):
 
     impl = sa.types.BINARY
 
-    # def bind_processor(self, dialect):
-    #     """Return a processor that decodes hex values."""
-    #     # def process(value):
-    #     #     return value and codecs.decode(value, 'hex') or None
-    #     # return process
+    def bind_processor(self, dialect):
+        """Return a processor that decodes hex values."""
+        def process(value):
+            return value and codecs.decode(value[2:], 'hex') or None
+        return process
 
     def result_processor(self, dialect, coltype):
         """Return a processor that encodes hex values."""
@@ -59,11 +59,11 @@ class HashVarBinary(sa.types.VARBINARY):
 
     impl = sa.types.VARBINARY
 
-    # def bind_processor(self, dialect):
-    #     """Return a processor that decodes hex values."""
-    #     def process(value):
-    #         return value and codecs.decode(value, 'hex') or None
-    #     return process
+    def bind_processor(self, dialect):
+        """Return a processor that decodes hex values."""
+        def process(value):
+            return value and codecs.decode(value[2:], 'hex') or None
+        return process
 
     def result_processor(self, dialect, coltype):
         """Return a processor that encodes hex values."""

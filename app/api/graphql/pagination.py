@@ -26,9 +26,19 @@ class AbstractPaginatedType(graphene.ObjectType):
         return cls(objects=paged_qs, page_info=page_info)
 
 
-def CreatePaginatedType(schema):
+# def CreatePaginatedType(schema):
+#     class PaginatedType(AbstractPaginatedType):
+#         page_info = graphene.Field(PaginationType)
+#         objects = graphene.List(schema)
+#
+#     return PaginatedType
+
+
+def create_paginated_type(class_name, schema):
     class PaginatedType(AbstractPaginatedType):
         page_info = graphene.Field(PaginationType)
         objects = graphene.List(schema)
 
-    return PaginatedType
+    dct = {"PaginatedType": PaginatedType}
+
+    return type(f"Paginated{class_name}", (PaginatedType, ), dct)
