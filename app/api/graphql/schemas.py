@@ -2,8 +2,8 @@ import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
 from substrateinterface.utils.ss58 import ss58_encode
-from app.models.explorer import  Extrinsic
-from sqlalchemy import INTEGER
+from app.models.explorer import Extrinsic
+from sqlalchemy import INTEGER, Integer
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 
@@ -18,7 +18,7 @@ def create_schema(query_name, model_, schema_overrides):
     # We override all INTEGER primary keys to be graphene int types;
     # graphene_sqlalchemy converts them to string by default
     for col in model_.__mapper__.primary_key:
-        if isinstance(col.type, INTEGER):
+        if isinstance(col.type, (INTEGER, Integer)):
             if col.name not in schema_overrides:
                 dct[col.name] = graphene.Int()
 

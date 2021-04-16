@@ -19,13 +19,14 @@ import sqlalchemy as sa
 from sqlalchemy import BLOB
 
 from app.db import BaseModel
+from app.models.field_types import HashBinary
 
 
 class CodecBlockExtrinsic(BaseModel):
     __tablename__ = 'codec_block_extrinsic'
     # __table_args__ = (Index('ix_codec_block_extrinsic_block_idx', "block_number", "extrinsic_idx"),)
 
-    block_hash = sa.Column(sa.types.BINARY(32), primary_key=True, index=True, nullable=False)
+    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     extrinsic_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
     block_number = sa.Column(sa.Integer(), nullable=False, index=True)
 
@@ -49,7 +50,7 @@ class CodecBlockEvent(BaseModel):
     __tablename__ = 'codec_block_event'
     # __table_args__ = (Index('ix_codec_block_event_block_idx', "block_number", "event_idx"),)
 
-    block_hash = sa.Column(sa.types.BINARY(32), primary_key=True, index=True, nullable=False)
+    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     event_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
     block_number = sa.Column(sa.Integer(), nullable=False, index=True)
 
@@ -72,7 +73,7 @@ class CodecBlockEvent(BaseModel):
 class CodecBlockHeaderDigestLog(BaseModel):
     __tablename__ = 'codec_block_header_digest_log'
 
-    block_hash = sa.Column(sa.types.BINARY(32), primary_key=True, index=True, nullable=False)
+    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     log_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
 
     block_number = sa.Column(sa.Integer(), nullable=False, index=True)
@@ -89,7 +90,7 @@ class CodecBlockHeaderDigestLog(BaseModel):
 class CodecBlockStorage(BaseModel):
     __tablename__ = 'codec_block_storage'
 
-    block_hash = sa.Column(sa.types.BINARY(32), primary_key=True, index=True, nullable=False)
+    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     storage_key = sa.Column(sa.VARBINARY(128), primary_key=True, index=True)
 
     block_number = sa.Column(sa.Integer(), nullable=False, index=True)
@@ -150,7 +151,7 @@ class RuntimeCall(BaseModel):
     pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     call_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     pallet_call_idx = sa.Column(sa.Integer(), nullable=False)
-    lookup = sa.Column(sa.BINARY(2), index=True, nullable=False)
+    lookup = sa.Column(HashBinary(2), index=True, nullable=False)
     documentation = sa.Column(sa.Text())
     count_arguments = sa.Column(sa.Integer(), nullable=False)
 
@@ -200,7 +201,7 @@ class RuntimeEvent(BaseModel):
     pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     event_name = sa.Column(sa.String(255), primary_key=True, index=True)
     pallet_event_idx = sa.Column(sa.Integer(), nullable=False)
-    lookup = sa.Column(sa.BINARY(2), index=True, nullable=False)
+    lookup = sa.Column(HashBinary(2), index=True, nullable=False)
     documentation = sa.Column(sa.Text())
     count_attributes = sa.Column(sa.Integer(), nullable=False)
 
@@ -241,8 +242,8 @@ class RuntimeStorage(BaseModel):
     pallet_storage_idx = sa.Column(sa.Integer(), nullable=False)
     default = sa.Column(BLOB())
     modifier = sa.Column(sa.String(64))
-    key_prefix_pallet = sa.Column(sa.types.BINARY(16))
-    key_prefix_name = sa.Column(sa.types.BINARY(16))
+    key_prefix_pallet = sa.Column(HashBinary(16))
+    key_prefix_name = sa.Column(HashBinary(16))
     key1_scale_type = sa.Column(sa.String(255))
     key1_hasher = sa.Column(sa.String(255))
     key2_scale_type = sa.Column(sa.String(255))
