@@ -23,13 +23,13 @@ from graphene_sqlalchemy_filter import FilterSet
 from app.models.explorer import Block, Extrinsic
 
 
-def create_filter(query_name, model_, field_overrides=None):
+def create_filter(query_name, model_, field_options):
     class meta_:
         model = model_
-        fields = {
-            'hash':  ['eq',],
-            'number':  ['eq',],
-        }
+        fields = {}
+
+    for field, operators in field_options.items():
+        meta_.fields[field.name] = operators
     return type(f"Filter{query_name}", (FilterSet, ), {"Meta": meta_})
 
 

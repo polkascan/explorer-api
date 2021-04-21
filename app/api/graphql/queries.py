@@ -61,7 +61,8 @@ class QueryNodeOne(object):
             node_args["page_key"] = graphene.String()
             node_args["page_size"] = graphene.Int()
 
-        if isinstance(filters, FilterSet):
+        #if isinstance(filters, FilterSet):
+        if filters and hasattr(filters, "FILTER_OBJECT_TYPES"):
             filter_obj = filters
         elif filters:
             filter_obj = create_filter(class_name, model_, filters)()
@@ -126,7 +127,7 @@ class QueryNodeMany(QueryNodeOne):
                     #     #TODO
                     #     #import pdb;pdb.set_trace()
 
-                    query = filter_obj.filter(info, query, filters).one()
+                    query = filter_obj.filter(info, query, filters)
 
                 elif filter_required:
                     raise GraphQLError(f'{class_name} requires filters')
