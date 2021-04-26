@@ -1,3 +1,5 @@
+from collections import Iterable
+
 import graphene
 from graphene_sqlalchemy import SQLAlchemyObjectType
 from graphene_sqlalchemy_filter import FilterSet
@@ -8,7 +10,7 @@ from app.api.graphql.filters import create_filter, BlocksFilter, ExtrinsicFilter
 from app.api.graphql.pagination import create_paginated_type
 from app.api.graphql.schemas import create_schema, ExtrinsicSchema
 from app.db import SessionManager
-from app.models.explorer import Block, Extrinsic, Event
+from app.models.explorer import Block, Extrinsic, Event, Log, Transfer
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
     RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, RuntimeType
 from app.session import SessionLocal
@@ -64,6 +66,7 @@ class QueryNodeOne(object):
         #if isinstance(filters, FilterSet):
         if filters and hasattr(filters, "FILTER_OBJECT_TYPES"):
             filter_obj = filters
+            node_args["filters"] = filter_obj
         elif filters:
             filter_obj = create_filter(class_name, model_, filters)()
             node_args["filters"] = filter_obj
@@ -92,7 +95,12 @@ class QueryNodeOne(object):
     def resolve(class_name, model, order_by, filter_obj, filter_required, filter_dependencies, pagination_obj):
         def resolve_func(self, info, filters=None, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE):
             with SessionManager(session_cls=SessionLocal) as session:
-                query = session.query(model).order_by(order_by)
+                query = session.query(model)
+                if isinstance(order_by, Iterable):
+                    query = query.order_by(*order_by)
+                else:
+                    query = query.order_by(order_by)
+
                 if filters:
                     if not filter_obj:
                         raise GraphQLError(f'{class_name} is not filterable')
@@ -117,7 +125,11 @@ class QueryNodeMany(QueryNodeOne):
     def resolve(class_name, model, order_by, filter_obj, filter_required, filter_dependencies, pagination_obj):
         def resolve_func(self, info, filters=None, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE):
             with SessionManager(session_cls=SessionLocal) as session:
-                query = session.query(model).order_by(order_by)
+                query = session.query(model)
+                if isinstance(order_by, Iterable):
+                    query = query.order_by(*order_by)
+                else:
+                    query = query.order_by(order_by)
 
                 if filters:
                     if not filter_obj:
@@ -180,7 +192,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         class_name="GetBlocks",
         model_=Block,
         order_by=Block.number.desc(),
-        filters=BlocksFilter,
+        filters=BlocksFilter(),
         paginated=True
     )
     #get_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter())
@@ -189,7 +201,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=Extrinsic,
         schema_overrides={"multi_address_account_id": graphene.String(description='')},
         order_by=Extrinsic.block_number.desc(),
-        filters=ExtrinsicFilter,
+        filters=ExtrinsicFilter(),
     )
     #get_extrinsics = graphene.Field(paginated_event, filters=ExtrinsicFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_extrinsics = QueryNodeMany(
@@ -197,7 +209,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=Extrinsic,
         schema_overrides={"multi_address_account_id": graphene.String(description='')},
         order_by=Extrinsic.block_number.desc(),
-        filters=ExtrinsicFilter,
+        filters=ExtrinsicFilter(),
         paginated=True
     )
     #get_event = graphene.Field(EventSchema, filters=EventFilter())
@@ -231,7 +243,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filters={
             Runtime.spec_name:  ['eq',],
             Runtime.spec_version:  ['eq',],
-        }
+        },
+        filter_required=True,
     )
 
     #get_latest_runtime = graphene.Field(RuntimeSchema)
@@ -239,17 +252,19 @@ class GraphQLQueries(metaclass=QueryGenerator):
         class_name="GetLatestRuntime",
         model_=Runtime,
         order_by=Runtime.spec_version.desc(),
+        filter_required=True,
     )
 
     #get_runtimes = graphene.Field(paginated_runtime, filters=RuntimeFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_runtimes = QueryNodeMany(
         class_name="GetRuntimes",
         model_=Runtime,
-        order_by=Runtime.spec_version.desc(),
+        order_by=(Runtime.spec_version.desc(), Runtime.spec_name.desc()),
         filters={
             Runtime.spec_name:  ['eq',],
             Runtime.spec_version:  ['eq',],
         },
+        filter_required=True,
         paginated=True
     )
 
@@ -262,19 +277,21 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeCall.spec_version:  ['eq',],
             RuntimeCall.pallet:  ['eq',],
         },
-        order_by=RuntimeCall.spec_version.desc(),
+        filter_required=True,
+        order_by=(RuntimeCall.pallet.desc(), RuntimeCall.call_name.desc(), RuntimeCall.spec_version.desc()),
     )
 
     #get_runtime_calls = graphene.Field(paginated_runtime_call, filters=RuntimeCallFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_runtime_calls = QueryNodeMany(
         class_name="GetRuntimeCalls",
         model_=RuntimeCall,
-        order_by=RuntimeCall.spec_version.desc(),
+        order_by=(RuntimeCall.pallet.desc(), RuntimeCall.call_name.desc(), RuntimeCall.spec_version.desc()),
         filters={
             RuntimeCall.spec_name:  ['eq',],
             RuntimeCall.spec_version:  ['eq',],
             RuntimeCall.pallet:  ['eq',],
         },
+        filter_required=True,
         paginated=True
     )
 
@@ -288,20 +305,22 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeCallArgument.pallet:  ['eq',],
             RuntimeCallArgument.call_name:  ['eq',],
         },
-        order_by=RuntimeCallArgument.spec_version.desc(),
+        filter_required=True,
+        order_by=(RuntimeCallArgument.pallet.desc(), RuntimeCallArgument.call_name.desc(), RuntimeCallArgument.spec_version.desc()),
     )
 
     #get_runtime_call_arguments = graphene.Field(paginated_runtime_call_argument, filters=RuntimeCallArgumentFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_runtime_call_arguments = QueryNodeMany(
         class_name="GetRuntimeCallArguments",
         model_=RuntimeCallArgument,
-        order_by=RuntimeCallArgument.spec_version.desc(),
+        order_by=(RuntimeCallArgument.pallet.desc(), RuntimeCallArgument.call_name.desc(), RuntimeCallArgument.spec_version.desc()),
         filters={
             RuntimeCallArgument.spec_name:  ['eq',],
             RuntimeCallArgument.spec_version:  ['eq',],
             RuntimeCallArgument.pallet:  ['eq',],
             RuntimeCallArgument.call_name:  ['eq',],
         },
+        filter_required=True,
         paginated=True
     )
 
@@ -315,20 +334,22 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeConstant.pallet:  ['eq',],
             RuntimeConstant.constant_name:  ['eq',],
         },
-        order_by=RuntimeConstant.spec_version.desc(),
+        filter_required=True,
+        order_by=(RuntimeConstant.pallet.desc(), RuntimeConstant.constant_name.desc(), RuntimeConstant.spec_version.desc()),
     )
 
     #get_runtime_constants = graphene.Field(paginated_runtime_constant, filters=RuntimeConstantFilter(), page_key=graphene.String(), page_size=graphene.Int())
     get_runtime_constants = QueryNodeMany(
         class_name="GetRuntimeConstants",
         model_=RuntimeConstant,
-        order_by=RuntimeConstant.spec_version.desc(),
+        order_by=(RuntimeConstant.pallet.desc(), RuntimeConstant.constant_name.desc(), RuntimeConstant.spec_version.desc()),
         filters={
             RuntimeConstant.spec_name:  ['eq',],
             RuntimeConstant.spec_version:  ['eq',],
             RuntimeConstant.pallet:  ['eq',],
             RuntimeConstant.constant_name:  ['eq',],
         },
+        filter_required=True,
         paginated=True
     )
 
@@ -342,7 +363,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeErrorMessage.pallet:  ['eq',],
             RuntimeErrorMessage.error_name:  ['eq',],
         },
-        order_by=RuntimeErrorMessage.spec_version.desc(),
+        filter_required = True,
+        order_by=(RuntimeErrorMessage.pallet.desc(), RuntimeErrorMessage.error_name.desc(), RuntimeErrorMessage.spec_version.desc()),
     )
 
     #get_runtime_error_messages = graphene.Field(paginated_runtime_error_message, filters=RuntimeErrorMessageFilter())
@@ -356,6 +378,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeErrorMessage.pallet:  ['eq',],
             RuntimeErrorMessage.error_name:  ['eq',],
         },
+        filter_required = True,
         paginated=True
     )
 
@@ -369,6 +392,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeEvent.pallet:  ['eq',],
             RuntimeEvent.event_name:  ['eq',],
         },
+        filter_required = True,
         order_by=RuntimeEvent.spec_version.desc(),
     )
 
@@ -383,6 +407,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeEvent.pallet:  ['eq',],
             RuntimeEvent.event_name:  ['eq',],
         },
+        filter_required = True,
         paginated=True
     )
 
@@ -395,7 +420,9 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeEventAttribute.spec_name:  ['eq',],
             RuntimeEventAttribute.spec_version:  ['eq',],
             RuntimeEventAttribute.pallet:  ['eq',],
+            RuntimeEventAttribute.event_name:  ['eq',],
         },
+        filter_required = True,
         paginated=True
     )
 
@@ -408,7 +435,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimePallet.spec_version:  ['eq',],
             RuntimePallet.pallet: ['eq', ],
         },
-        order_by=RuntimePallet.spec_version.desc(),
+        filter_required=True,
+        order_by=(RuntimePallet.pallet.desc(), RuntimePallet.spec_version.desc()),
     )
 
 
@@ -416,12 +444,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
     get_runtime_pallets = QueryNodeMany(
         class_name="GetRuntimePallets",
         model_=RuntimePallet,
-        order_by=RuntimePallet.spec_version.desc(),
+        order_by=(RuntimePallet.pallet.desc(), RuntimePallet.spec_version.desc()),
         filters={
             RuntimePallet.spec_name:  ['eq',],
             RuntimePallet.spec_version:  ['eq',],
             RuntimePallet.pallet: ['eq', ],
         },
+        filter_required=True,
         paginated=True
     )
 
@@ -435,11 +464,12 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeStorage.pallet: ['eq', ],
             RuntimeStorage.storage_name: ['eq', ],
         },
-        order_by=RuntimeStorage.spec_version.desc(),
+        filter_required = True,
+        order_by=(RuntimeStorage.pallet.desc(), RuntimeStorage.spec_version.desc()),
     )
 
     #get_runtime_storages = graphene.Field(paginated_runtime_storage, filters=RuntimeStorageFilter(), page_key=graphene.String(), page_size=graphene.Int())
-    get_runtime_storages = QueryNodeOne(
+    get_runtime_storages = QueryNodeMany(
         class_name="GetRuntimeStorages",
         model_=RuntimeStorage,
         filters={
@@ -448,7 +478,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeStorage.pallet: ['eq', ],
             RuntimeStorage.storage_name: ['eq', ],
         },
-        order_by=RuntimeStorage.spec_version.desc(),
+        filter_required = True,
+        order_by=(RuntimeStorage.pallet.desc(), RuntimeStorage.spec_version.desc()),
     )
 
     #get_runtime_type = graphene.Field(RuntimeTypeSchema, filters=RuntimeTypeFilter())
@@ -460,11 +491,12 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeType.spec_version:  ['eq',],
             RuntimeType.scale_type: ['eq', ],
         },
+        filter_required = True,
         order_by=RuntimeType.spec_version.desc(),
     )
 
     #get_runtime_types = graphene.Field(paginated_runtime_type, filters=RuntimeTypeFilter(), page_key=graphene.String(), page_size=graphene.Int())
-    get_runtime_types = QueryNodeOne(
+    get_runtime_types = QueryNodeMany(
         class_name="GetRuntimeTypes",
         model_=RuntimeType,
         filters={
@@ -472,5 +504,84 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeType.spec_version:  ['eq',],
             RuntimeType.scale_type: ['eq', ],
         },
+        filter_required = True,
         order_by=RuntimeType.spec_version.desc(),
+    )
+
+    get_log = QueryNodeOne(
+        class_name="GetLog",
+        model_=Log,
+        filters={
+            Log.block_number: ['eq', ],
+            Log.type_id: ['eq',],
+            Log.type_name:  ['eq',],
+            Log.block_datetime:  ['eq', 'lt', 'lte', 'gt', 'gte'],
+            Log.block_hash:  ['eq',],
+            Log.spec_name:  ['eq',],
+            Log.spec_version:  ['eq',],
+            Log.complete:  ['eq',],
+        },
+        filter_required=True,
+        order_by=Log.spec_version.desc(),
+    )
+
+    get_logs = QueryNodeMany(
+        class_name="GetLogs",
+        model_=Log,
+        filters={
+            Log.block_number: ['eq',],
+            Log.type_id: ['eq',],
+            Log.type_name:  ['eq',],
+            Log.block_datetime:  ['eq', 'lt', 'lte', 'gt', 'gte'],
+            Log.block_hash:  ['eq',],
+            Log.spec_name:  ['eq',],
+            Log.spec_version:  ['eq',],
+            Log.complete:  ['eq',],
+        },
+        filter_required=True,
+        order_by=Log.spec_version.desc(),
+        paginated=True
+    )
+
+    get_transfer = QueryNodeOne(
+        class_name="GetTransfer",
+        model_=Transfer,
+        filters={
+            Transfer.block_number: ['eq',],
+            Transfer.event_idx: ['eq',],
+            Transfer.extrinsic_idx: ['eq',],
+            Transfer.from_multi_address_type: ['eq',],
+            Transfer.from_multi_address_account_id: ['eq',],
+            Transfer.from_multi_address_address_20: ['eq',],
+            Transfer.from_multi_address_address_32: ['eq',],
+            Transfer.to_multi_address_type: ['eq', ],
+            Transfer.to_multi_address_account_id: ['eq', ],
+            Transfer.to_multi_address_address_20: ['eq', ],
+            Transfer.to_multi_address_address_32: ['eq', ],
+            Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
+        },
+        filter_required=True,
+        order_by=Transfer.block_number.desc(),
+    )
+
+    get_transfers = QueryNodeMany(
+        class_name="GetTransfers",
+        model_=Transfer,
+        filters={
+            Transfer.block_number: ['eq', ],
+            Transfer.event_idx: ['eq', ],
+            Transfer.extrinsic_idx: ['eq', ],
+            Transfer.from_multi_address_type: ['eq', ],
+            Transfer.from_multi_address_account_id: ['eq', ],
+            Transfer.from_multi_address_address_20: ['eq', ],
+            Transfer.from_multi_address_address_32: ['eq', ],
+            Transfer.to_multi_address_type: ['eq', ],
+            Transfer.to_multi_address_account_id: ['eq', ],
+            Transfer.to_multi_address_address_20: ['eq', ],
+            Transfer.to_multi_address_address_32: ['eq', ],
+            Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
+        },
+        filter_required=True,
+        order_by=Transfer.block_number.desc(),
+        paginated=True
     )

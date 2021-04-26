@@ -43,6 +43,7 @@ class BlockSchema(SQLAlchemyObjectType):
 
 class EventSchema(SQLAlchemyObjectType):
     block_number = graphene.Int()
+    event_idx = graphene.Int()
 
     class Meta:
         model = Event
