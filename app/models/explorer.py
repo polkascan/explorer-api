@@ -126,10 +126,10 @@ class Transfer(BaseModel):
     to_multi_address_raw = sa.Column(HashVarBinary(255), nullable=True)
     to_multi_address_address_32 = sa.Column(HashBinary(32), nullable=True)
     to_multi_address_address_20 = sa.Column(HashBinary(20), nullable=True)
-    value = author_slot_number = sa.Column(NUMERIC(precision=65, scale=0, unsigned=True), nullable=True)
+    value = sa.Column(NUMERIC(precision=65, scale=0, unsigned=True), nullable=True)
     block_datetime = sa.Column(UTCDateTime(timezone=True), nullable=True)
     block_hash = sa.Column(HashBinary(32), nullable=False)
-    complete = sa.Column(TINYINT(display_width=1), nullable=False)
+    complete = sa.Column(sa.Boolean(), nullable=False)
 
 
 class Log(BaseModel):
@@ -138,10 +138,10 @@ class Log(BaseModel):
     block_number = sa.Column(INTEGER(unsigned=True, display_width=11), primary_key=True, autoincrement=False, nullable=False)
     log_idx = sa.Column(INTEGER(unsigned=True, display_width=11), primary_key=True, autoincrement=False, nullable=False)
     type_id = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=False)
-    type_name = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
+    type_name = sa.Column(sa.String(255), nullable=True, index=True)
     data = sa.Column(sa.JSON(), nullable=True)
     block_datetime = sa.Column(UTCDateTime(timezone=True), nullable=True)
     block_hash = sa.Column(HashBinary(32), nullable=False)
     spec_name = sa.Column(sa.String(64), nullable=True)
     spec_version = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
-    complete = sa.Column(TINYINT(display_width=1), nullable=False)
+    complete = sa.Column(sa.Boolean(), nullable=False)
