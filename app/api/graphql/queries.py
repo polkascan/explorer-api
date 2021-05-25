@@ -98,7 +98,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
         class_name="GetLatestRuntime",
         model_=Runtime,
         order_by=Runtime.spec_version.desc(),
-        filter_required=True,
     )
 
     get_runtimes = QueryNodeMany(
@@ -109,7 +108,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Runtime.spec_name:  ['eq',],
             Runtime.spec_version:  ['eq',],
         },
-        filter_required=True,
         paginated=True
     )
 
@@ -307,7 +305,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeStorage.pallet: ['eq', ],
             RuntimeStorage.storage_name: ['eq', ],
         },
-        filter_required = True,
+        filter_required=True,
+        paginated=True,
         order_by=(RuntimeStorage.pallet.desc(), RuntimeStorage.spec_version.desc()),
     )
 
@@ -365,7 +364,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Log.spec_version:  ['eq',],
             Log.complete:  ['eq',],
         },
-        filter_required=True,
         order_by=Log.spec_version.desc(),
         paginated=True
     )
@@ -408,7 +406,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Transfer.to_multi_address_address_32: ['eq', ],
             Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
         },
-        filter_required=True,
         order_by=Transfer.block_number.desc(),
         paginated=True
     )

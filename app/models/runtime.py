@@ -240,7 +240,7 @@ class RuntimeStorage(BaseModel):
     pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     storage_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     pallet_storage_idx = sa.Column(sa.Integer(), nullable=False)
-    default = sa.Column(BLOB())
+    #default = sa.Column(BLOB())
     modifier = sa.Column(sa.String(64))
     key_prefix_pallet = sa.Column(HashBinary(16))
     key_prefix_name = sa.Column(HashBinary(16))
