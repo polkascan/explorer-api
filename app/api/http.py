@@ -26,6 +26,11 @@ def test_sentry() -> Any:
     raise Exception("TEST ERROR")
 
 
+@app.get("/test/version")
+def test_version() -> Any:
+    return {"result": "version"}
+
+
 ws_html = """
 <!DOCTYPE html>
 <html>
