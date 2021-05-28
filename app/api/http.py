@@ -24,13 +24,12 @@ def test_db(db: Session = Depends(get_db)) -> Any:
 @app.get("/test/sentry")
 def test_sentry() -> Any:
     raise Exception("TEST ERROR")
-    import gitcommit
-    import pdb;pdb.set_trace()
 
 
 @app.get("/test/version")
 def test_version() -> Any:
-    return {"result": "version"}
+    import gitcommit
+    return {"prev_commit": gitcommit.prev_commit, "datetime": gitcommit.date, "branch": gitcommit.branch}
 
 
 ws_html = """
