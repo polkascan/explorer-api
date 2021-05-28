@@ -24,6 +24,7 @@ def test_db(db: Session = Depends(get_db)) -> Any:
 @app.get("/test/sentry")
 def test_sentry() -> Any:
     raise Exception("TEST ERROR")
+    import gitcommit
 
 
 @app.get("/test/version")
