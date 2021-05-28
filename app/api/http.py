@@ -28,6 +28,7 @@ def test_sentry() -> Any:
 
 @app.get("/test/version")
 def test_version() -> Any:
+
     import gitcommit
     return {"prev_commit": gitcommit.prev_commit, "datetime": gitcommit.date, "branch": gitcommit.branch}
 
