@@ -25,6 +25,7 @@ def test_db(db: Session = Depends(get_db)) -> Any:
 def test_sentry() -> Any:
     raise Exception("TEST ERROR")
     import gitcommit
+    import pdb;pdb.set_trace()
 
 
 @app.get("/test/version")
