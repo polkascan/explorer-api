@@ -1,7 +1,7 @@
 fastapi==0.63.0
 graphene==3.0b7
 cryptography==3.4.6
-git+https://github.com/matthijsb/graphene-sqlalchemy.git
+git+https://github.com/polkascan/graphene-sqlalchemy.git
 PyMySQL==1.0.2
 python-dotenv==0.15.0
 pytest==6.2.2
@@ -12,7 +12,7 @@ starlette-graphene3==0.1.1
 tenacity==6.3.1
 uvicorn[standard]==0.13.3
 websockets==8.1
-git+https://github.com/matthijsb/graphene-sqlalchemy-filter.git
+git+https://github.com/polkascan/graphene-sqlalchemy-filter.git
 substrate-interface~=0.11.14
 broadcaster==0.2.0
 asyncio-redis==0.16.0
