@@ -48,7 +48,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         class_name="GetExtrinsic",
         model_=Extrinsic,
         schema_overrides={"multi_address_account_id": graphene.String(description='')},
-        order_by=Extrinsic.block_number.desc(),
+        order_by=(Extrinsic.block_number.desc(), Extrinsic.extrinsic_idx.desc()),
         filters=ExtrinsicFilter(),
     )
 
@@ -56,7 +56,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         class_name="GetExtrinsics",
         model_=Extrinsic,
         schema_overrides={"multi_address_account_id": graphene.String(description='')},
-        order_by=Extrinsic.block_number.desc(),
+        order_by=(Extrinsic.block_number.desc(), Extrinsic.extrinsic_idx.desc()),
         filters=ExtrinsicFilter(),
         paginated=True
     )
@@ -64,7 +64,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
     get_event = QueryNodeOne(
         class_name="GetEvent",
         model_=Event,
-        order_by=Event.block_number.desc(),
+        order_by=(Event.block_number.desc(), Event.event_idx.desc(),),
         filters={
             Event.block_number:  ['eq',],
             Event.event_idx: ['eq',],
@@ -74,7 +74,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
     get_events = QueryNodeMany(
         class_name="GetEvents",
         model_=Event,
-        order_by=Event.block_number.desc(),
+        order_by=(Event.block_number.desc(), Event.event_idx.desc(),),
         filters={
             Event.block_number:  ['eq',],
             Event.event_module:  ['eq',],
@@ -103,7 +103,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
     get_runtimes = QueryNodeMany(
         class_name="GetRuntimes",
         model_=Runtime,
-        order_by=(Runtime.spec_version.desc(), Runtime.spec_name.desc()),
+        order_by=(Runtime.spec_version.desc(), Runtime.spec_name),
         filters={
             Runtime.spec_name:  ['eq',],
             Runtime.spec_version:  ['eq',],
@@ -120,13 +120,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeCall.pallet:  ['eq',],
         },
         filter_required=True,
-        order_by=(RuntimeCall.pallet.desc(), RuntimeCall.call_name.desc(), RuntimeCall.spec_version.desc()),
+        order_by=(RuntimeCall.spec_version.desc(), RuntimeCall.pallet, RuntimeCall.call_name),
     )
 
     get_runtime_calls = QueryNodeMany(
         class_name="GetRuntimeCalls",
         model_=RuntimeCall,
-        order_by=(RuntimeCall.pallet.desc(), RuntimeCall.call_name.desc(), RuntimeCall.spec_version.desc()),
+        order_by=(RuntimeCall.spec_version.desc(), RuntimeCall.pallet, RuntimeCall.call_name),
         filters={
             RuntimeCall.spec_name:  ['eq',],
             RuntimeCall.spec_version:  ['eq',],
@@ -146,13 +146,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeCallArgument.call_name:  ['eq',],
         },
         filter_required=True,
-        order_by=(RuntimeCallArgument.pallet.desc(), RuntimeCallArgument.call_name.desc(), RuntimeCallArgument.spec_version.desc()),
+        order_by=(RuntimeCallArgument.spec_version.desc(), RuntimeCallArgument.pallet, RuntimeCallArgument.call_name),
     )
 
     get_runtime_call_arguments = QueryNodeMany(
         class_name="GetRuntimeCallArguments",
         model_=RuntimeCallArgument,
-        order_by=(RuntimeCallArgument.pallet.desc(), RuntimeCallArgument.call_name.desc(), RuntimeCallArgument.spec_version.desc()),
+        order_by=(RuntimeCallArgument.spec_version.desc(), RuntimeCallArgument.pallet, RuntimeCallArgument.call_name),
         filters={
             RuntimeCallArgument.spec_name:  ['eq',],
             RuntimeCallArgument.spec_version:  ['eq',],
@@ -173,13 +173,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeConstant.constant_name:  ['eq',],
         },
         filter_required=True,
-        order_by=(RuntimeConstant.pallet.desc(), RuntimeConstant.constant_name.desc(), RuntimeConstant.spec_version.desc()),
+        order_by=(RuntimeConstant.spec_version.desc(), RuntimeConstant.pallet, RuntimeConstant.constant_name),
     )
 
     get_runtime_constants = QueryNodeMany(
         class_name="GetRuntimeConstants",
         model_=RuntimeConstant,
-        order_by=(RuntimeConstant.pallet.desc(), RuntimeConstant.constant_name.desc(), RuntimeConstant.spec_version.desc()),
+        order_by=(RuntimeConstant.spec_version.desc(), RuntimeConstant.pallet, RuntimeConstant.constant_name),
         filters={
             RuntimeConstant.spec_name:  ['eq',],
             RuntimeConstant.spec_version:  ['eq',],
@@ -200,13 +200,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeErrorMessage.error_name:  ['eq',],
         },
         filter_required = True,
-        order_by=(RuntimeErrorMessage.pallet.desc(), RuntimeErrorMessage.error_name.desc(), RuntimeErrorMessage.spec_version.desc()),
+        order_by=(RuntimeErrorMessage.spec_version.desc(), RuntimeErrorMessage.pallet, RuntimeErrorMessage.error_name),
     )
 
     get_runtime_error_messages = QueryNodeMany(
         class_name="GetRuntimeErrorMessages",
         model_=RuntimeErrorMessage,
-        order_by=RuntimeErrorMessage.spec_version.desc(),
+        order_by=(RuntimeErrorMessage.spec_version.desc(), RuntimeErrorMessage.pallet, RuntimeErrorMessage.error_name),
         filters={
             RuntimeErrorMessage.spec_name:  ['eq',],
             RuntimeErrorMessage.spec_version:  ['eq',],
@@ -226,28 +226,28 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeEvent.pallet:  ['eq',],
             RuntimeEvent.event_name:  ['eq',],
         },
-        filter_required = True,
-        order_by=RuntimeEvent.spec_version.desc(),
+        filter_required=True,
+        order_by=(RuntimeEvent.spec_version.desc(), RuntimeEvent.pallet, RuntimeEvent.event_name),
     )
 
     get_runtime_events = QueryNodeMany(
         class_name="GetRuntimeEvents",
         model_=RuntimeEvent,
-        order_by=RuntimeEvent.spec_version.desc(),
+        order_by=(RuntimeEvent.spec_version.desc(), RuntimeEvent.pallet, RuntimeEvent.event_name),
         filters={
             RuntimeEvent.spec_name:  ['eq',],
             RuntimeEvent.spec_version:  ['eq',],
             RuntimeEvent.pallet:  ['eq',],
             RuntimeEvent.event_name:  ['eq',],
         },
-        filter_required = True,
+        filter_required=True,
         paginated=True
     )
 
     get_runtime_event_attributes = QueryNodeMany(
         class_name="GetRuntimeEventAttributes",
         model_=RuntimeEventAttribute,
-        order_by=RuntimeEventAttribute.spec_version.desc(),
+        order_by=(RuntimeEventAttribute.spec_version.desc(), RuntimeEventAttribute.pallet, RuntimeEventAttribute.event_name),
         filters={
             RuntimeEventAttribute.spec_name:  ['eq',],
             RuntimeEventAttribute.spec_version:  ['eq',],
@@ -267,13 +267,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimePallet.pallet: ['eq', ],
         },
         filter_required=True,
-        order_by=(RuntimePallet.pallet.desc(), RuntimePallet.spec_version.desc()),
+        order_by=(RuntimePallet.spec_version.desc(), RuntimePallet.pallet, RuntimePallet.name),
     )
 
     get_runtime_pallets = QueryNodeMany(
         class_name="GetRuntimePallets",
         model_=RuntimePallet,
-        order_by=(RuntimePallet.pallet.desc(), RuntimePallet.spec_version.desc()),
+        order_by=(RuntimePallet.spec_version.desc(), RuntimePallet.pallet, RuntimePallet.name),
         filters={
             RuntimePallet.spec_name:  ['eq',],
             RuntimePallet.spec_version:  ['eq',],
@@ -293,7 +293,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeStorage.storage_name: ['eq', ],
         },
         filter_required = True,
-        order_by=(RuntimeStorage.pallet.desc(), RuntimeStorage.spec_version.desc()),
+        order_by=(RuntimeStorage.spec_version.desc(), RuntimeStorage.pallet, RuntimeStorage.storage_name),
     )
 
     get_runtime_storages = QueryNodeMany(
@@ -307,7 +307,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         },
         filter_required=True,
         paginated=True,
-        order_by=(RuntimeStorage.pallet.desc(), RuntimeStorage.spec_version.desc()),
+        order_by=(RuntimeStorage.spec_version.desc(), RuntimeStorage.pallet, RuntimeStorage.storage_name),
     )
 
     get_runtime_type = QueryNodeOne(
@@ -318,8 +318,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeType.spec_version:  ['eq',],
             RuntimeType.scale_type: ['eq', ],
         },
-        filter_required = True,
-        order_by=RuntimeType.spec_version.desc(),
+        filter_required=True,
+        order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
     )
 
     get_runtime_types = QueryNodeMany(
@@ -331,7 +331,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeType.scale_type: ['eq', ],
         },
         filter_required = True,
-        order_by=RuntimeType.spec_version.desc(),
+        order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
     )
 
     get_log = QueryNodeOne(
@@ -339,6 +339,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=Log,
         filters={
             Log.block_number: ['eq', ],
+            Log.log_idx: ['eq',],
             Log.type_id: ['eq',],
             Log.type_name:  ['eq',],
             Log.block_datetime:  ['eq', 'lt', 'lte', 'gt', 'gte'],
@@ -348,7 +349,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Log.complete:  ['eq',],
         },
         filter_required=True,
-        order_by=Log.spec_version.desc(),
+        order_by=(Log.block_number.desc(), Log.log_idx.desc()),
     )
 
     get_logs = QueryNodeMany(
@@ -364,7 +365,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Log.spec_version:  ['eq',],
             Log.complete:  ['eq',],
         },
-        order_by=Log.spec_version.desc(),
+        order_by=(Log.block_number.desc(), Log.log_idx.desc()),
         paginated=True
     )
 
@@ -386,7 +387,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
         },
         filter_required=True,
-        order_by=Transfer.block_number.desc(),
+        order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
     )
 
     get_transfers = QueryNodeMany(
@@ -406,6 +407,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Transfer.to_multi_address_address_32: ['eq', ],
             Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
         },
-        order_by=Transfer.block_number.desc(),
+        order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
         paginated=True
     )

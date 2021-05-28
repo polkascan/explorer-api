@@ -38,6 +38,8 @@ ws_html = """
         <button onclick="sendQuery()">Query</button>
         <button onclick="subscribeBlocks()">Subscribe new blocks</button>
         <button onclick="subscribeEvents()">Subscribe new events</button>
+        <button onclick="subscribeTransfer()">Subscribe new transfers</button>
+        <button onclick="subscribeLog()">Subscribe new logs</button>
         <ul id='messages'>
         </ul>
         <script>
@@ -105,6 +107,30 @@ ws_html = """
                 };
                 ws.send(JSON.stringify(payload));
             }
+            
+            function subscribeTransfer() {
+                payload = {
+                    "type": GQL_START,
+                    "id": "sub_transfer",
+                    "payload": {
+                        "query": "subscription { subscribeNewTransfer {blockNumber, eventIdx, event} }",
+                        "operationName": null,
+                    },
+                };
+                ws.send(JSON.stringify(payload));
+            }
+            
+            function subscribeLog() {
+                payload = {
+                    "type": GQL_START,
+                    "id": "sub_log",
+                    "payload": {
+                        "query": "subscription { subscribeNewLog {blockNumber, logIdx} }",
+                        "operationName": null,
+                    },
+                };
+                ws.send(JSON.stringify(payload));
+            } 
         </script>
     </body>
 </html>

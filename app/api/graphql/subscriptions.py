@@ -86,6 +86,7 @@ class Subscription(graphene.ObjectType):
     subscribe_new_event = graphene.Field(EventSchema, filters=EventsFilter())
     subscribe_new_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter())
     subscribe_new_transfer = graphene.Field(TransferSchema, filters=TransferFilter())
+    subscribe_new_log = graphene.Field(LogSchema, filters=LogFilter())
 
     async def subscribe_subscribe_new_block(root, info):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -182,7 +183,7 @@ class Subscription(graphene.ObjectType):
         with SessionManager(session_cls=SessionLocal) as session:
             latest_log = session.query(Log).order_by(Log.block_number.desc(), Log.log_idx.desc())
             if filters is not None:
-                latest_transfer = LogFilter.filter(info, latest_log, filters)
+                latest_log = LogFilter.filter(info, latest_log, filters)
             latest_log = latest_log.first()
             if latest_log:
                 yield latest_log
