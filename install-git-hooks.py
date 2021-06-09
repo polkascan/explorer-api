@@ -1,8 +1,7 @@
-pre_commit_content = """
-#!/bin/bash
-
+pre_commit_content = """#!/usr/bin/env bash
 set -e
 
+#=== 'prev-commit' solution by o_O Tync
 #commit_hash=$(git rev-parse --verify HEAD)
 commit=$(git log -1 --pretty="%H%n%ci") # hash \n date
 commit_hash=$(echo "$commit" | head -1)
