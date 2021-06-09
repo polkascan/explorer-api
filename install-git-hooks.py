@@ -18,6 +18,7 @@ echo -e "prev_commit='$commit_hash'\ndate='$dt'\nbranch='$branch'\n" > gitcommit
 git add gitcommit.py
 """
 
+
 import os
 import stat
 
