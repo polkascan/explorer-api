@@ -1,5 +1,6 @@
 pre_commit_content = """
-#!/usr/bin/env bash
+#!/bin/bash
+
 set -e
 
 #commit_hash=$(git rev-parse --verify HEAD)
@@ -19,13 +20,18 @@ git add gitcommit.py
 """
 
 import os
+import stat
+
 
 if __name__ == "__main__":
 
     __GITHOOKS_BASE_DIR__ = os.path.join(os.getcwd(), ".git/hooks")
-    os.makedirs(__GITHOOKS_BASE_DIR__)
+    os.makedirs(__GITHOOKS_BASE_DIR__, exist_ok=True)
 
     pre_commit_file = os.path.join(__GITHOOKS_BASE_DIR__, "pre-commit")
 
     with open(pre_commit_file, "w") as f:
         f.write(pre_commit_content)
+
+    st = os.stat(pre_commit_file)
+    os.chmod(pre_commit_file, st.st_mode | stat.S_IEXEC)
