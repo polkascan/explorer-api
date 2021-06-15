@@ -1,3 +1,4 @@
+import binascii
 import codecs
 from datetime import timezone
 
@@ -40,13 +41,19 @@ class HashBinary(sa.types.BINARY):
     def bind_processor(self, dialect):
         """Return a processor that decodes hex values."""
         def process(value):
-            return value and codecs.decode(value[2:], 'hex') or None
+            try:
+                return value and codecs.decode(value[2:], 'hex') or None
+            except binascii.Error:
+                raise Exception(f"Invalid HEX input: {value}")
         return process
 
     def result_processor(self, dialect, coltype):
         """Return a processor that encodes hex values."""
         def process(value):
-            return value and f"0x{codecs.encode(value, 'hex').decode('utf-8')}" or None
+            try:
+                return value and f"0x{codecs.encode(value, 'hex').decode('utf-8')}" or None
+            except binascii.Error:
+                raise Exception(f"Invalid HEX input: {value}")
         return process
 
     def adapt(self, impltype):
@@ -62,13 +69,19 @@ class HashVarBinary(sa.types.VARBINARY):
     def bind_processor(self, dialect):
         """Return a processor that decodes hex values."""
         def process(value):
-            return value and codecs.decode(value[2:], 'hex') or None
+            try:
+                return value and codecs.decode(value[2:], 'hex') or None
+            except binascii.Error:
+                raise Exception(f"Invalid HEX input: {value}")
         return process
 
     def result_processor(self, dialect, coltype):
         """Return a processor that encodes hex values."""
         def process(value):
-            return value and f"0x{codecs.encode(value, 'hex').decode('utf-8')}" or None
+            try:
+                return value and f"0x{codecs.encode(value, 'hex').decode('utf-8')}" or None
+            except binascii.Error:
+                raise Exception(f"Invalid HEX input: {value}")
         return process
 
     def adapt(self, impltype):

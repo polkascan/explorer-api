@@ -89,7 +89,7 @@ class QueryNodeOne(object):
             model_,
             filters=None,
             filter_required=False,
-            filter_dependencies=None,
+            filter_combinations=None,
             schema_overrides=None,
             order_by=None,
             paginated=False,
@@ -124,13 +124,28 @@ class QueryNodeOne(object):
         else:
             filter_obj = None
 
+        key_combinations = {}
+        if filter_combinations:
+            for filter_field in list(filter_combinations):
+                field_name = filter_field.key
+                if not isinstance(filter_field, InstrumentedAttribute):
+                    field_name = str(filter_field)
+                if not isinstance(filter_field, InstrumentedAttribute) or not getattr(model_, field_name, None):
+                    raise Exception(f"Invalid filter attribute {field_name}, {field_name} should be a InstrumentedAttribute decalred on {model_}")
+                parsed_combinations = set()
+                raw_combinations = filter_combinations[filter_field]
+                for combi in raw_combinations:
+                    parsed_combinations.add(combi.key)
+                key_combinations[filter_field.key] = parsed_combinations
+        filter_combinations = key_combinations
+
         self.node_resolve_func = self.resolve(
             class_name,
             model_,
             order_by,
             filter_obj,
             filter_required,
-            filter_dependencies,
+            filter_combinations,
             pagination_obj
         )
 
@@ -143,7 +158,29 @@ class QueryNodeOne(object):
         )
 
     @staticmethod
-    def resolve(class_name, model, order_by, filter_obj, filter_required, filter_dependencies, pagination_obj):
+    def check_filters(class_name, filters, filter_obj, filter_combinations):
+        if not filter_obj:
+            raise GraphQLError(f'{class_name} is not filterable')
+
+        if filter_combinations:
+            filter_keys = set(filters.keys())
+            combi_keys = set(filter_combinations.keys())
+            key_diff = filter_keys.intersection(combi_keys)
+
+            missing_filters = {}
+            for combi_key in key_diff:
+                if combi_key in combi_keys:
+                    required_keys = set(filter_combinations[combi_key])
+                    missing_keys = required_keys - filter_keys
+                    if missing_keys:
+                        missing_filters[combi_key] = required_keys
+
+            if missing_filters:
+                raise GraphQLError(
+                    f'The following {class_name} filters depend on other filters, missing combinations: {str(missing_filters)}')
+
+    @staticmethod
+    def resolve(class_name, model, order_by, filter_obj, filter_required, filter_combinations, pagination_obj):
         def resolve_func(self, info, filters=None, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE):
             with SessionManager(session_cls=SessionLocal) as session:
                 query = session.query(model)
@@ -153,13 +190,7 @@ class QueryNodeOne(object):
                     query = query.order_by(order_by)
 
                 if filters:
-                    if not filter_obj:
-                        raise GraphQLError(f'{class_name} is not filterable')
-
-                    #if filter_dependencies:
-                    #    #TODO!
-                    #    #import pdb;pdb.set_trace()
-
+                    QueryNodeOne.check_filters(class_name, filters, filter_obj, filter_combinations)
                     return filter_obj.filter(info, query, filters).one()
 
                 elif filter_required:
@@ -174,7 +205,7 @@ class QueryNodeMany(QueryNodeOne):
         super(QueryNodeMany, self).__init__(*args, **kwargs)
 
     @staticmethod
-    def resolve(class_name, model, order_by, filter_obj, filter_required, filter_dependencies, pagination_obj):
+    def resolve(class_name, model, order_by, filter_obj, filter_required, filter_combinations, pagination_obj):
         def resolve_func(self, info, filters=None, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE):
             with SessionManager(session_cls=SessionLocal) as session:
                 query = session.query(model)
@@ -184,13 +215,7 @@ class QueryNodeMany(QueryNodeOne):
                     query = query.order_by(order_by)
 
                 if filters:
-                    if not filter_obj:
-                        raise GraphQLError(f'{class_name} is not filterable')
-
-                    # if filter_dependencies:
-                    #     #TODO
-                    #     #import pdb;pdb.set_trace()
-
+                    QueryNodeMany.check_filters(class_name, filters, filter_obj, filter_combinations)
                     query = filter_obj.filter(info, query, filters)
 
                 elif filter_required:

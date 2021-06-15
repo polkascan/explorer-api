@@ -43,10 +43,10 @@ def test_websocket() -> Any:
         </head>
         <body>
             <h1>WebSocket test</h1>
-            <h2>Commit dt: {gitcommit.date}</h1>
-            <h2>Prev commit: {gitcommit.prev_commit}</h2>
-            <h2>Branch: {gitcommit.branch or 'master'}</h2>
-            <textarea type="textarea" id="query-text" rows="4" cols="50">query {getBlocks(filters: {idGte: 100}) {id, hash}}</textarea>
+            <h4>Commit dt: {gitcommit.date}</h4>
+            <h4>Prev commit: {gitcommit.prev_commit}</h4>
+            <h4>Branch: {gitcommit.branch or 'master'}</h4>
+            <textarea type="textarea" id="query-text" rows="4" cols="50">query {{getBlocks(filters: {{idGte: 100}}) {{id, hash}}}}</textarea>
             <button onclick="sendQuery()">Query</button>
             <button onclick="subscribeBlocks()">Subscribe new blocks</button>
             <button onclick="subscribeEvents()">Subscribe new events</button>
