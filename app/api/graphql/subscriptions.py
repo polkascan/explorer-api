@@ -132,7 +132,7 @@ class Subscription(graphene.ObjectType):
         with SessionManager(session_cls=SessionLocal) as session:
             latest_extrinsics = session.query(Extrinsic).order_by(Extrinsic.block_number.desc(), Extrinsic.extrinsic_idx.desc())
             if filters is not None:
-                latest_extrinsics = EventFilter.filter(info, latest_extrinsics, filters)
+                latest_extrinsics = ExtrinsicFilter.filter(info, latest_extrinsics, filters)
             latest_extrinsic = latest_extrinsics.first()
             if latest_extrinsic:
                 yield latest_extrinsic
@@ -146,15 +146,12 @@ class Subscription(graphene.ObjectType):
                         query = session.query(Extrinsic).filter(Extrinsic.block_number.in_(extrinsic_records))
 
                         if filters is not None:
-                            query = EventFilter.filter(info, query, filters)
+                            query = ExtrinsicFilter.filter(info, query, filters)
 
                         for item in query.order_by(Extrinsic.block_number, Extrinsic.extrinsic_idx):
                             yield item
 
     async def subscribe_subscribe_new_transfer(root, info, filters=None):
-        """
-        blockNumber, eventIdx, extrinsicIdx, fromMultiAddressType, fromMultiAddressAccountId, fromMultiAddressAccountIndex, fromMultiAddressRaw, fromMultiAddressAddress32, fromMultiAddressAddress20, toMultiAddressType, toMultiAddressAccountId, toMultiAddressAccountIndex, toMultiAddressRaw, toMultiAddressAddress32, toMultiAddressAddress20, value, blockDatetime, blockHash, complete
-        """
 
         with SessionManager(session_cls=SessionLocal) as session:
             latest_transfer = session.query(Transfer).order_by(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc())

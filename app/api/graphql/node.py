@@ -134,6 +134,8 @@ class QueryNodeOne(object):
                     raise Exception(f"Invalid filter attribute {field_name}, {field_name} should be a InstrumentedAttribute decalred on {model_}")
                 parsed_combinations = set()
                 raw_combinations = filter_combinations[filter_field]
+                if not isinstance(raw_combinations, (list, tuple, set)):
+                    raise Exception("Filter combination required fields should be a list, tuple or set")
                 for combi in raw_combinations:
                     parsed_combinations.add(combi.key)
                 key_combinations[filter_field.key] = parsed_combinations
@@ -202,6 +204,10 @@ class QueryNodeOne(object):
 
 class QueryNodeMany(QueryNodeOne):
     def __init__(self, *args, **kwargs):
+        if not kwargs.get("paginated", None):
+            if "return_type" not in kwargs:
+                kwargs["return_type"] = graphene.List
+
         super(QueryNodeMany, self).__init__(*args, **kwargs)
 
     @staticmethod

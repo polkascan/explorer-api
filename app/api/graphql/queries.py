@@ -205,8 +205,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filter_required=True,
         paginated=True,
         filter_combinations={
-            RuntimeConstant.spec_name: (RuntimeConstant.spec_version),
-            RuntimeConstant.spec_version: (RuntimeConstant.spec_name),
+            RuntimeConstant.spec_name: (RuntimeConstant.spec_version,),
+            RuntimeConstant.spec_version: (RuntimeConstant.spec_name,),
             RuntimeConstant.pallet: (RuntimeConstant.spec_name, RuntimeConstant.spec_version),
         }
     )
@@ -243,8 +243,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filter_required=True,
         paginated=True,
         filter_combinations={
-            RuntimeErrorMessage.spec_name: (RuntimeErrorMessage.spec_version),
-            RuntimeErrorMessage.spec_version: (RuntimeErrorMessage.spec_name),
+            RuntimeErrorMessage.spec_name: (RuntimeErrorMessage.spec_version, ),
+            RuntimeErrorMessage.spec_version: (RuntimeErrorMessage.spec_name, ),
             RuntimeErrorMessage.pallet: (RuntimeErrorMessage.spec_name, RuntimeErrorMessage.spec_version),
         }
     )
@@ -385,16 +385,14 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filters={
             RuntimeType.spec_name:  ['eq',],
             RuntimeType.spec_version:  ['eq',],
-            RuntimeType.pallet: ['eq', ],
             RuntimeType.scale_type: ['eq', ],
         },
         filter_required=True,
         order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
         filter_combinations={
-            RuntimeType.spec_name: (RuntimeType.spec_version, RuntimeType.pallet, RuntimeType.pallet, RuntimeType.scale_type),
-            RuntimeType.spec_version: (RuntimeType.spec_name, RuntimeType.pallet, RuntimeType.pallet, RuntimeType.scale_type),
-            RuntimeType.pallet: (RuntimeType.spec_name, RuntimeType.spec_version, RuntimeType.scale_type),
-            RuntimeType.scale_type: (RuntimeType.spec_name, RuntimeType.spec_version, RuntimeType.pallet),
+            RuntimeType.spec_name: (RuntimeType.spec_version, RuntimeType.scale_type),
+            RuntimeType.spec_version: (RuntimeType.spec_name,  RuntimeType.scale_type),
+            RuntimeType.scale_type: (RuntimeType.spec_name, RuntimeType.spec_version),
         }
     )
 
@@ -404,15 +402,13 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filters={
             RuntimeType.spec_name:  ['eq',],
             RuntimeType.spec_version:  ['eq',],
-            RuntimeType.pallet: ['eq', ],
             RuntimeType.scale_type: ['eq', ],
         },
-        filter_required = True,
+        filter_required=True,
         order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
         filter_combinations={
             RuntimeType.spec_name: (RuntimeType.spec_version,),
             RuntimeType.spec_version: (RuntimeType.spec_name,),
-            RuntimeType.pallet: (RuntimeType.spec_name, RuntimeType.spec_version,),
         }
     )
 
