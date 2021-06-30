@@ -8,10 +8,8 @@ local_env_ext = ".local.env"
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str
     CHAIN_ID: str
     API_STR: str = "/api/"
-    SERVER_NAME: str
     SERVER_ADDR: str
     SERVER_PORT: int
     WEBSOCKET_URI: str
@@ -25,6 +23,8 @@ class Settings(BaseSettings):
     DEFAULT_PAGE_SIZE: int = 10
     BROADCAST_URI: str
 
+    SENTRY_PROJECT_NAME: str
+    SENTRY_SERVER_NAME: str
     SENTRY_DSN: Optional[HttpUrl] = None
 
     def __init__(self, *args, **kwargs):

@@ -30,6 +30,9 @@ services:
       - DB_PASSWORD=root
       - BROADCAST_URI=redis://redis:6379
       - CHAIN_ID=polkadot
+      - SENTRY_PROJECT_NAME=explorer-polling-v2
+      - SENTRY_SERVER_NAME=polkadapt
+      - SENTRY_DSN=
 
   api:
     build:
@@ -49,13 +52,13 @@ services:
       - DB_PORT=3306
       - DB_PASSWORD=root
       - DOMAIN=localhost
-      - PROJECT_NAME=explorer-api-v2
-      - SERVER_NAME=polkadapt
       - SERVER_ADDR=0.0.0.0
       - SERVER_PORT=8000
       - WEBSOCKET_URI=ws://0.0.0.0:8000
       - BACKEND_CORS_ORIGINS=[]
-      - SENTRY_DSN=
       - BROADCAST_URI=redis://redis:6379
       - API_SQLA_URI=mysql+pymysql://root:root@mysql:3306/explorer_api?charset=utf8mb4
       - CHAIN_ID=polkadot
+      - SENTRY_PROJECT_NAME=explorer-api-v2
+      - SENTRY_SERVER_NAME=polkadapt
+      - SENTRY_DSN=
