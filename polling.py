@@ -25,7 +25,7 @@ sentry_enabled = os.environ['SENTRY_DSN'] and len(os.environ['SENTRY_DSN']) > 1
 if sentry_enabled:
     sentry_sdk.init(dsn=os.environ['SENTRY_DSN'], traces_sample_rate=1.0, attach_stacktrace=True, request_bodies='always')
     import gitcommit
-    sentry_sdk.set_tag("api-project-name", "POLLER-TEST") #os.environ['SENTRY_PROJECT_NAME'])
+    sentry_sdk.set_tag("api-project-name", os.environ['SENTRY_PROJECT_NAME'])
     sentry_sdk.set_tag("api-server-name", os.environ['SENTRY_SERVER_NAME'])
     sentry_sdk.set_tag("api-chain-id", os.environ['CHAIN_ID'])
     sentry_sdk.set_tag("api-git-dt", gitcommit.date)
