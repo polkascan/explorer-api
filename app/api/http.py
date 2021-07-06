@@ -46,7 +46,7 @@ def test_websocket() -> Any:
             <h4>Commit dt: {gitcommit.date}</h4>
             <h4>Prev commit: {gitcommit.prev_commit}</h4>
             <h4>Branch: {gitcommit.branch or 'master'}</h4>
-            <textarea type="textarea" id="query-text" rows="4" cols="50">query {{getBlocks(filters: {{idGte: 100}}) {{id, hash}}}}</textarea>
+            <textarea type="textarea" id="query-text" rows="4" cols="50">query {{ getLatestBlock {{ number, hash }} }}</textarea>
             <button onclick="sendQuery()">Query</button>
             <button onclick="subscribeBlocks()">Subscribe new blocks</button>
             <button onclick="subscribeEvents()">Subscribe new events</button>
