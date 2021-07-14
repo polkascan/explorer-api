@@ -18,6 +18,7 @@ class EventFilter(FilterSet):
         fields = {
             'block_number':  ['eq',],
             'event_idx':  ['eq',],
+            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 
@@ -28,6 +29,7 @@ class EventsFilter(FilterSet):
             'block_number':  ['eq',],
             'event_module':  ['eq',],
             'event_name':  ['eq',],
+            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 
@@ -60,6 +62,7 @@ class TransferFilter(FilterSet):
         fields = {
             'block_number':  ['eq',],
             'event_idx':  ['eq',],
+            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 
@@ -78,6 +81,7 @@ class LogFilter(FilterSet):
             'block_number':  ['eq',],
             'log_idx':  ['eq',],
             'type_id':  ['eq',],
+            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 

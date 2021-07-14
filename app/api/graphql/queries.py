@@ -20,7 +20,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=Block,
         filters={
             Block.hash: ['eq',],
-            Block.number: ['eq',]
+            Block.number: ['eq',],
+            Block.datetime: ['eq', 'gt', 'lt', 'gte', 'lte']
         },
         order_by=Block.number.desc(),
         filter_required=True
@@ -62,6 +63,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filters={
             Event.block_number:  ['eq',],
             Event.event_idx:  ['eq',],
+            Event.block_datetime:  ['eq', 'gt', 'lt', 'gte', 'lte'],
         },
         filter_combinations={
             Event.block_number: (Event.event_idx,),
@@ -78,6 +80,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Event.event_module:  ['eq',],
             Event.event_name:  ['eq',],
             Event.extrinsic_idx:  ['eq',],
+            Event.block_datetime: ['eq', 'gt', 'lt', 'gte', 'lte'],
         },
         paginated=True,
         filter_combinations={

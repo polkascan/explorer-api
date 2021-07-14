@@ -34,6 +34,7 @@ class BlocksFilter(FilterSet):
         fields = {
             'hash':  ['eq',],
             'number':  ['eq', 'gt', 'lt', 'gte', 'lte'],
+            'datetime':  ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
 
@@ -48,6 +49,7 @@ class ExtrinsicFilter(FilterSet):
             'call_module': ['eq',],
             'call_name': ['eq',],
             'signed': ['eq',],
+            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
 
     @staticmethod
