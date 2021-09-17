@@ -125,7 +125,7 @@ def test_websocket() -> Any:
                         "type": GQL_START,
                         "id": "sub_transfer",
                         "payload": {
-                            "query": "subscription { subscribeNewTransfer {blockNumber, eventIdx, event} }",
+                            "query": "subscription { subscribeNewTransfer {blockNumber, eventIdx, blockDatetime, fromMultiAddressAccountId, toMultiAddressAccountId} }",
                             "operationName": null,
                         },
                     };

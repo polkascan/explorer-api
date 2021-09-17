@@ -8,6 +8,8 @@ from app.models.explorer import Block, Event, Extrinsic, Transfer, Log
 from app.api.graphql.filters import ExtrinsicFilter
 from app.api.graphql.schemas import ExtrinsicSchema
 
+from substrateinterface.utils.ss58 import ss58_decode
+
 from graphene_sqlalchemy_filter import FilterSet
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
@@ -57,6 +59,9 @@ class TransferSchema(SQLAlchemyObjectType):
 
 
 class TransferFilter(FilterSet):
+    from_multi_address_account_id = graphene.String(description='')
+    to_multi_address_account_id = graphene.String(description='')
+
     class Meta:
         model = Transfer
         fields = {
@@ -64,6 +69,16 @@ class TransferFilter(FilterSet):
             'event_idx':  ['eq',],
             'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
         }
+
+    @staticmethod
+    def from_multi_address_account_id_filter(info, query, value):
+        """ """
+        return Transfer.from_multi_address_account_id == ss58_decode(value)
+
+    @staticmethod
+    def to_multi_address_account_id_filter(info, query, value):
+        """ """
+        return Transfer.to_multi_address_account_id == ss58_decode(value)
 
 
 class LogSchema(SQLAlchemyObjectType):
