@@ -408,6 +408,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeType.scale_type: ['eq', ],
         },
         filter_required=True,
+        paginated=True,
         order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
         filter_combinations={
             RuntimeType.spec_name: (RuntimeType.spec_version,),
