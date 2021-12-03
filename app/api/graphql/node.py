@@ -54,6 +54,23 @@ def create_filter(query_name, model_, field_options):
     return type(f"Filter{query_name}", (FilterSet, ), {"Meta": meta_})
 
 
+class AbstractWrappedType(graphene.ObjectType):
+
+    @classmethod
+    def create_paginated_result(cls, query, *args, **kwargs):
+        return cls(objects=query.all())
+
+
+def create_wrapped_type(class_name, schema):
+
+    class WrappedType(AbstractWrappedType):
+        objects = graphene.List(schema)
+
+    dct = {"WrappedType": WrappedType}
+
+    return type(f"Wrapped{class_name}", (WrappedType, ), dct)
+
+
 def create_paginated_type(class_name, schema):
     class PaginatedType(AbstractPaginatedType):
         page_info = graphene.Field(PaginationType)
@@ -130,6 +147,9 @@ class QueryNodeOne(object):
             node_schema = pagination_obj
             node_args["page_key"] = graphene.String()
             node_args["page_size"] = graphene.Int()
+        elif isinstance(self, QueryNodeMany):
+            pagination_obj = create_wrapped_type(class_name, node_schema)
+            node_schema = pagination_obj
 
         #if isinstance(filters, FilterSet):
         if filters and hasattr(filters, "FILTER_OBJECT_TYPES"):
@@ -221,9 +241,9 @@ class QueryNodeOne(object):
 
 class QueryNodeMany(QueryNodeOne):
     def __init__(self, *args, **kwargs):
-        if not kwargs.get("paginated", None):
-            if "return_type" not in kwargs:
-                kwargs["return_type"] = graphene.List
+        # if not kwargs.get("paginated", None):
+        #     if "return_type" not in kwargs:
+        #         kwargs["return_type"] = graphene.List
 
         super(QueryNodeMany, self).__init__(*args, **kwargs)
 
@@ -245,7 +265,6 @@ class QueryNodeMany(QueryNodeOne):
                     raise GraphQLError(f'{class_name} requires filters')
 
                 if pagination_obj:
-                    #TODO:!!!!!! pak de pagination als sqla clausule op en gooi die in de where clausule!
                     query = pagination_obj.create_paginated_result(query, page_key, page_size)
 
                 return query
