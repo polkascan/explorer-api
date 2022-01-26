@@ -31,4 +31,4 @@ COPY . /usr/src
 
 EXPOSE 8000
 
-CMD bash -c "/usr/src/start-backend.sh"
+CMD bash -c "/usr/src/start-api.sh"
