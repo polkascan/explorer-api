@@ -19,4 +19,4 @@ substrate-interface~=1.1.7
 broadcaster==0.2.0
 asyncio-redis==0.16.0
 sqlakeyset==1.0.1611286921
-git+https://github.com/polkascan/sqlalchemy-pagination.git
+git+https://github.com/polkascan/sqlalchemy-pagination.git@f8ae4b458b345dc0a2ec09c496c6d204505dda50
