@@ -1,5 +1,5 @@
 # Polkascan Explorer API
-Python Polkascan Explorer API
+A GraphQL service that enables subscription-based communication with Polkascan’s data sources.
 
 ## Installation
 To run the API:
