@@ -18,7 +18,7 @@ def test_ping() -> Any:
 @app.get("/test/db")
 def test_db(db: Session = Depends(get_db)) -> Any:
     item = db.query(Block).first()
-    return {"result": "OK", "id": item.id}
+    return {"result": "OK", "id": item.hash}
 
 
 @app.get("/test/sentry")
