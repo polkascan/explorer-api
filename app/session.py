@@ -5,7 +5,7 @@ from sqlalchemy import event
 from app.settings import settings
 
 
-engine = create_engine(settings.API_SQLA_URI, pool_pre_ping=True)
+engine = create_engine(settings.API_SQLA_URI, pool_pre_ping=True, pool_size=40)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @event.listens_for(SessionLocal, 'after_begin')
