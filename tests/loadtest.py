@@ -19,3 +19,7 @@ class PerformanceTests(HttpUser):
         # headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         # self.client.get("/predict", data=json.dumps(sample.dict()), headers=headers)
         self.client.get("/test/db")
+
+
+from websocket import create_connection
+https://loadforge.com/directory/websockets
