@@ -1,7 +1,7 @@
 """initial
 
 Revision ID: 567ddcab4f81
-Revises: 
+Revises:
 Create Date: 2022-04-05 15:55:24.382243
 
 """
@@ -10,6 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
+from app.models.field_types import UTCDateTime
+
 revision = '567ddcab4f81'
 down_revision = None
 branch_labels = None
@@ -112,7 +114,7 @@ def upgrade():
     sa.Column('parent_hash', sa.BINARY(length=32), nullable=False),
     sa.Column('state_root', sa.BINARY(length=32), nullable=False),
     sa.Column('extrinsics_root', sa.BINARY(length=32), nullable=False),
-    sa.Column('datetime', app.models.field_types.UTCDateTime(timezone=True), nullable=True),
+    sa.Column('datetime', UTCDateTime(timezone=True), nullable=True),
     sa.Column('author_authority_index', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
     sa.Column('author_slot_number', mysql.NUMERIC(unsigned=True, precision=65, scale=0), nullable=True),
     sa.Column('author_account_id', sa.BINARY(length=32), nullable=True),
@@ -148,7 +150,7 @@ def upgrade():
     sa.Column('phase_name', sa.String(length=255), nullable=True),
     sa.Column('attributes', sa.JSON(), nullable=True),
     sa.Column('topics', sa.JSON(), nullable=True),
-    sa.Column('block_datetime', app.models.field_types.UTCDateTime(timezone=True), nullable=True),
+    sa.Column('block_datetime', UTCDateTime(timezone=True), nullable=True),
     sa.Column('block_hash', sa.BINARY(length=32), nullable=False),
     sa.Column('spec_name', sa.String(length=64), nullable=True),
     sa.Column('spec_version', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
@@ -189,7 +191,7 @@ def upgrade():
     sa.Column('era_birth', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
     sa.Column('era_death', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
     sa.Column('tip', mysql.NUMERIC(unsigned=True, precision=65, scale=0), nullable=True),
-    sa.Column('block_datetime', app.models.field_types.UTCDateTime(timezone=True), nullable=True),
+    sa.Column('block_datetime', UTCDateTime(timezone=True), nullable=True),
     sa.Column('block_hash', sa.BINARY(length=32), nullable=False),
     sa.Column('spec_name', sa.String(length=64), nullable=True),
     sa.Column('spec_version', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
@@ -211,7 +213,7 @@ def upgrade():
     sa.Column('type_id', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
     sa.Column('type_name', sa.String(length=255), nullable=True),
     sa.Column('data', sa.JSON(), nullable=True),
-    sa.Column('block_datetime', app.models.field_types.UTCDateTime(timezone=True), nullable=True),
+    sa.Column('block_datetime', UTCDateTime(timezone=True), nullable=True),
     sa.Column('block_hash', sa.BINARY(length=32), nullable=False),
     sa.Column('spec_name', sa.String(length=64), nullable=True),
     sa.Column('spec_version', mysql.INTEGER(display_width=11, unsigned=True), nullable=True),
@@ -241,7 +243,7 @@ def upgrade():
     sa.Column('to_multi_address_address_32', sa.BINARY(length=32), nullable=True),
     sa.Column('to_multi_address_address_20', sa.BINARY(length=20), nullable=True),
     sa.Column('value', mysql.NUMERIC(unsigned=True, precision=65, scale=0), nullable=True),
-    sa.Column('block_datetime', app.models.field_types.UTCDateTime(timezone=True), nullable=True),
+    sa.Column('block_datetime', UTCDateTime(timezone=True), nullable=True),
     sa.Column('block_hash', sa.BINARY(length=32), nullable=False),
     sa.Column('complete', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('block_number', 'event_idx')
