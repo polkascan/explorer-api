@@ -9,8 +9,6 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
-import apps
-
 # revision identifiers, used by Alembic.
 revision = '567ddcab4f81'
 down_revision = None

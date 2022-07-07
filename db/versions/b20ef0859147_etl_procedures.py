@@ -67,7 +67,7 @@ op.execute(f"""
                     CALL `etl_explorer_events`(`block_start`,`block_end`,`update_status`);
                     CALL `etl_explorer_extrinsics`(`block_start`,`block_end`,`update_status`);
                     CALL `etl_explorer_logs`(`block_start`,`block_end`,`update_status`);
-                    #CALL `etl_explorer_transfers`(`block_start`,`block_end`,`update_status`);
+                    CALL `etl_explorer_transfers`(`block_start`,`block_end`,`update_status`);
                     CALL `etl_explorer_blocks`(`block_start`,`block_end`,`update_status`);
 
                     ### UPDATE STATUS TABLE ###
