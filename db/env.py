@@ -28,6 +28,7 @@ fileConfig(config.config_file_name)
 
 from app.models.runtime import *
 from app.models.explorer import *
+from app.models.harvester import *
 
 target_metadata = BaseModel.metadata
 
@@ -48,6 +49,13 @@ sys.path.append(BASE_DIR)
 
 DB_CONNECTION = os.environ['API_SQLA_URI']
 DEBUG = True
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == 'table' and object.schema == settings.DB_HARVESTER_NAME:
+        return False
+
+    return True
 
 
 def render_item(type_, obj, autogen_context):
@@ -82,6 +90,7 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
         render_item=render_item,
     )
 
@@ -112,6 +121,7 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            include_object=include_object,
             render_item=render_item,
         )
 

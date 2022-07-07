@@ -26,7 +26,7 @@ sys.path.append(BASE_DIR)
 class settings:
     DB_USERNAME = os.environ['DB_USERNAME']
     DB_NAME = os.environ['DB_NAME']
-    HARVESTER_DB = os.environ['HARVESTER_DB_NAME'] or "polkascan"
+    DB_HARVESTER_NAME = os.environ['DB_HARVESTER_NAME'] or "polkascan"
 
 
 # revision identifiers, used by Alembic.
@@ -63,7 +63,6 @@ op.execute(f"""
                     SET @update_status = `update_status`;
 
                     ### CALL OTHER STORED PROCEDURES ###
-                    #CALL `etl_codec_block_timestamp`(`block_start`,`block_end`,`update_status`);
                     CALL `etl_explorer_events`(`block_start`,`block_end`,`update_status`);
                     CALL `etl_explorer_extrinsics`(`block_start`,`block_end`,`update_status`);
                     CALL `etl_explorer_logs`(`block_start`,`block_end`,`update_status`);
@@ -125,14 +124,14 @@ BEGIN
                 NULL AS `author_slot_number`,
                 NULL AS `author_account_id`,
                 `nbh`.`count_extrinsics`,
-                (SELECT COUNT(*) FROM `{settings.HARVESTER_DB}`.`codec_block_event` AS `cbev` WHERE `cbev`.`block_hash`=`nbh`.`hash`) AS `count_events`,
+                (SELECT COUNT(*) FROM `{settings.DB_HARVESTER_NAME}`.`codec_block_event` AS `cbev` WHERE `cbev`.`block_hash`=`nbh`.`hash`) AS `count_events`,
                 `nbh`.`count_logs`,
                 `nbr`.`spec_name` AS `spec_name`,
                 `nbr`.`spec_version` AS `spec_version`,
                 1 AS `complete`
-            FROM `{settings.HARVESTER_DB}`.`node_block_header` AS `nbh`
-            INNER JOIN `{settings.HARVESTER_DB}`.`node_block_runtime` AS `nbr` ON `nbr`.`hash` = `nbh`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
-            INNER JOIN `{settings.HARVESTER_DB}`.`codec_block_timestamp` AS `cbts` ON `nbr`.`hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
+            FROM `{settings.DB_HARVESTER_NAME}`.`node_block_header` AS `nbh`
+            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_runtime` AS `nbr` ON `nbr`.`hash` = `nbh`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
+            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`codec_block_timestamp` AS `cbts` ON `nbr`.`hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
             WHERE `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
         ) ON DUPLICATE KEY UPDATE
             `parent_number` = VALUES(`parent_number`),
@@ -211,10 +210,10 @@ op.execute(f"""
                         `nbr`.`spec_name` AS `spec_name`,
                         `nbr`.`spec_version` AS `spec_version`,
                         IF(`cbev`.`complete`=1,1,0) AS `complete`
-                    FROM `{settings.HARVESTER_DB}`.`codec_block_event` AS `cbev`
-                    INNER JOIN `{settings.HARVESTER_DB}`.`node_block_header` AS `nbh` ON `cbev`.`block_hash` = `nbh`.`hash` AND `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
-                    INNER JOIN `{settings.HARVESTER_DB}`.`node_block_runtime` AS `nbr` ON `cbev`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
-                    INNER JOIN `{settings.HARVESTER_DB}`.`codec_block_timestamp` AS `cbts` ON `cbev`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
+                    FROM `{settings.DB_HARVESTER_NAME}`.`codec_block_event` AS `cbev`
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_header` AS `nbh` ON `cbev`.`block_hash` = `nbh`.`hash` AND `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_runtime` AS `nbr` ON `cbev`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`codec_block_timestamp` AS `cbts` ON `cbev`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
                     WHERE	`cbev`.`block_number` >= @block_start AND	`cbev`.`block_number` <= @block_end
                 ) ON DUPLICATE KEY UPDATE
                     `extrinsic_idx` = VALUES(`extrinsic_idx`),
@@ -326,11 +325,11 @@ op.execute(f"""
                         `nbr`.`spec_name` AS `spec_name`,
                         `nbr`.`spec_version` AS `spec_version`,
                         IF(`cbex`.`complete`=1,1,0) AS `complete`
-                    FROM `{settings.HARVESTER_DB}`.`codec_block_extrinsic` AS `cbex`
-                    INNER JOIN `{settings.HARVESTER_DB}`.`node_block_extrinsic` AS `nbex` ON `cbex`.`block_hash` = `nbex`.`block_hash` AND `cbex`.`extrinsic_idx` = `nbex`.`extrinsic_idx` AND `nbex`.`block_number` >= @block_start AND	`nbex`.`block_number` <= @block_end
-                    INNER JOIN `{settings.HARVESTER_DB}`.`node_block_header` AS `nbh` ON `cbex`.`block_hash` = `nbh`.`hash` AND `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
-                    INNER JOIN `{settings.HARVESTER_DB}`.`node_block_runtime` AS `nbr` ON `cbex`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
-                    INNER JOIN `{settings.HARVESTER_DB}`.`codec_block_timestamp` AS `cbts` ON `cbex`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
+                    FROM `{settings.DB_HARVESTER_NAME}`.`codec_block_extrinsic` AS `cbex`
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_extrinsic` AS `nbex` ON `cbex`.`block_hash` = `nbex`.`block_hash` AND `cbex`.`extrinsic_idx` = `nbex`.`extrinsic_idx` AND `nbex`.`block_number` >= @block_start AND	`nbex`.`block_number` <= @block_end
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_header` AS `nbh` ON `cbex`.`block_hash` = `nbh`.`hash` AND `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_runtime` AS `nbr` ON `cbex`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
+                    INNER JOIN `{settings.DB_HARVESTER_NAME}`.`codec_block_timestamp` AS `cbts` ON `cbex`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
                     WHERE `cbex`.`block_number` >= @block_start AND	`cbex`.`block_number` <= @block_end
                 ) ON DUPLICATE KEY UPDATE
                     `hash` = VALUES(`hash`),
@@ -413,9 +412,9 @@ op.execute(f"""
                                 `nbr`.`spec_name` AS `spec_name`,
                                 `nbr`.`spec_version` AS `spec_version`,
                                 `cbhdl`.`complete`
-                            FROM `{settings.HARVESTER_DB}`.`codec_block_header_digest_log` AS `cbhdl`
-                            INNER JOIN `{settings.HARVESTER_DB}`.`node_block_runtime` AS `nbr` ON `cbhdl`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
-                            INNER JOIN `{settings.HARVESTER_DB}`.`codec_block_timestamp` AS `cbts` ON `cbhdl`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
+                            FROM `{settings.DB_HARVESTER_NAME}`.`codec_block_header_digest_log` AS `cbhdl`
+                            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_runtime` AS `nbr` ON `cbhdl`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
+                            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`codec_block_timestamp` AS `cbts` ON `cbhdl`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
                             WHERE	`cbhdl`.`block_number` >= @block_start AND	`cbhdl`.`block_number` <= @block_end
                         ) ON DUPLICATE KEY UPDATE
                                 `type_id` = VALUES(`type_id`),
@@ -479,10 +478,10 @@ op.execute(f"""
                                     `cbts`.`datetime` AS `block_datetime`,
                                     `cbev`.`block_hash` AS `block_hash`,
                                     `cbev`.`complete` AS `complete`
-                            FROM `{settings.HARVESTER_DB}`.`codec_block_event` AS `cbev`
-                            INNER JOIN `{settings.HARVESTER_DB}`.`node_block_header` AS `nbh` ON `cbev`.`block_hash` = `nbh`.`hash` AND `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
-                            INNER JOIN `{settings.HARVESTER_DB}`.`node_block_runtime` AS `nbr` ON `cbev`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
-                            INNER JOIN `{settings.HARVESTER_DB}`.`codec_block_timestamp` AS `cbts` ON `cbev`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
+                            FROM `{settings.DB_HARVESTER_NAME}`.`codec_block_event` AS `cbev`
+                            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_header` AS `nbh` ON `cbev`.`block_hash` = `nbh`.`hash` AND `nbh`.`block_number` >= @block_start AND	`nbh`.`block_number` <= @block_end
+                            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`node_block_runtime` AS `nbr` ON `cbev`.`block_hash` = `nbr`.`hash` AND `nbr`.`block_number` >= @block_start AND	`nbr`.`block_number` <= @block_end
+                            INNER JOIN `{settings.DB_HARVESTER_NAME}`.`codec_block_timestamp` AS `cbts` ON `cbev`.`block_hash` = `cbts`.`block_hash` AND `cbts`.`block_number` >= @block_start AND	`cbts`.`block_number` <= @block_end
                             WHERE	`cbev`.`block_number` >= @block_start AND	`cbev`.`block_number` <= @block_end
                             AND `cbev`.`event_module`='Balances' AND `cbev`.`event_name`='Transfer'
                 ) ON DUPLICATE KEY UPDATE

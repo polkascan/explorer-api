@@ -18,6 +18,7 @@
 import sqlalchemy as sa
 from sqlalchemy import BLOB
 
+from app import settings
 from app.db import BaseModel
 from app.models.field_types import HashBinary
 
@@ -25,6 +26,7 @@ from app.models.field_types import HashBinary
 class CodecBlockExtrinsic(BaseModel):
     __tablename__ = 'codec_block_extrinsic'
     # __table_args__ = (Index('ix_codec_block_extrinsic_block_idx', "block_number", "extrinsic_idx"),)
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     extrinsic_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
@@ -49,6 +51,7 @@ class CodecBlockExtrinsic(BaseModel):
 class CodecBlockEvent(BaseModel):
     __tablename__ = 'codec_block_event'
     # __table_args__ = (Index('ix_codec_block_event_block_idx', "block_number", "event_idx"),)
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     event_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
@@ -72,6 +75,7 @@ class CodecBlockEvent(BaseModel):
 
 class CodecBlockHeaderDigestLog(BaseModel):
     __tablename__ = 'codec_block_header_digest_log'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     log_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
@@ -89,6 +93,7 @@ class CodecBlockHeaderDigestLog(BaseModel):
 
 class CodecBlockStorage(BaseModel):
     __tablename__ = 'codec_block_storage'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
     storage_key = sa.Column(sa.VARBINARY(128), primary_key=True, index=True)
@@ -112,6 +117,7 @@ class CodecBlockStorage(BaseModel):
 
 class CodecMetadata(BaseModel):
     __tablename__ = 'codec_metadata'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(64), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -129,6 +135,7 @@ class CodecMetadata(BaseModel):
 
 class Runtime(BaseModel):
     __tablename__ = 'runtime'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -145,6 +152,7 @@ class Runtime(BaseModel):
 
 class RuntimeCall(BaseModel):
     __tablename__ = 'runtime_call'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -158,6 +166,7 @@ class RuntimeCall(BaseModel):
 
 class RuntimeCallArgument(BaseModel):
     __tablename__ = 'runtime_call_argument'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -170,6 +179,7 @@ class RuntimeCallArgument(BaseModel):
 
 class RuntimeConstant(BaseModel):
     __tablename__ = 'runtime_constant'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -183,6 +193,7 @@ class RuntimeConstant(BaseModel):
 
 class RuntimeErrorMessage(BaseModel):
     __tablename__ = 'runtime_error'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -195,6 +206,7 @@ class RuntimeErrorMessage(BaseModel):
 
 class RuntimeEvent(BaseModel):
     __tablename__ = 'runtime_event'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -208,6 +220,7 @@ class RuntimeEvent(BaseModel):
 
 class RuntimeEventAttribute(BaseModel):
     __tablename__ = 'runtime_event_attribute'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -219,6 +232,7 @@ class RuntimeEventAttribute(BaseModel):
 
 class RuntimePallet(BaseModel):
     __tablename__ = 'runtime_pallet'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -234,6 +248,7 @@ class RuntimePallet(BaseModel):
 
 class RuntimeStorage(BaseModel):
     __tablename__ = 'runtime_storage'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -255,6 +270,7 @@ class RuntimeStorage(BaseModel):
 
 class RuntimeType(BaseModel):
     __tablename__ = 'runtime_type'
+    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
