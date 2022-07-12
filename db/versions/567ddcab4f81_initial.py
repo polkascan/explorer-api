@@ -9,7 +9,6 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
-import app
 
 # revision identifiers, used by Alembic.
 from app.models.field_types import UTCDateTime
