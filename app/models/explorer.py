@@ -145,3 +145,20 @@ class Log(BaseModel):
     spec_name = sa.Column(sa.String(64), nullable=True)
     spec_version = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
     complete = sa.Column(sa.Boolean(), nullable=False, index=True)
+
+
+class TaggedAccount(BaseModel):
+    __tablename__ = 'explorer_tagged_account'
+
+    account_id = sa.Column(HashBinary(32), primary_key=True, autoincrement=False, nullable=False, index=True)
+    tag_name = sa.Column(sa.String(255), nullable=False)
+    tag_type = sa.Column(sa.String(255), nullable=False, index=True)
+    tag_sub_type = sa.Column(sa.String(255), nullable=True)
+    risk_level = sa.Column(TINYINT(display_width=1), nullable=True, index=True)
+    risk_level_verbose = sa.Column(sa.String(255), nullable=True)
+    originator_info = sa.Column(sa.JSON(), nullable=True)
+    beneficiary_info = sa.Column(sa.JSON(), nullable=True)
+
+
+
+
