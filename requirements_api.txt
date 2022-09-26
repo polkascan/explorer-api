@@ -1,4 +1,5 @@
 fastapi==0.66.0
+alembic~=1.7
 graphene==3.0b7
 cryptography==3.4.6
 git+https://github.com/polkascan/graphene-sqlalchemy.git
@@ -20,3 +21,7 @@ broadcaster==0.2.0
 asyncio-redis==0.16.0
 sqlakeyset==1.0.1611286921
 git+https://github.com/polkascan/sqlalchemy-pagination.git@f8ae4b458b345dc0a2ec09c496c6d204505dda50
+
+opentelemetry-distro==0.29b0
+opentelemetry-exporter-otlp==1.10.0
+opentelemetry-instrumentation-fastapi==0.29b0

@@ -1,8 +1,10 @@
 import logging
 
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app import settings
 
-from app.session import SessionLocal
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,9 +21,18 @@ wait_seconds = 1
 )
 def init() -> None:
     try:
+        engine = create_engine(
+            f"mysql+pymysql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/?charset=utf8mb4",
+            pool_pre_ping=True
+        )
+        SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
         db = SessionLocal()
-        # Try to create session to check if DB is awake
-        db.execute("SELECT 1")
+
+        # Try if DB exists
+        db.execute(f"CREATE DATABASE IF NOT EXISTS {settings.DB_NAME}")
+        db.commit()
+
     except Exception as e:
         logger.error(e)
         raise e

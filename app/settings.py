@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
+    DB_HARVESTER_NAME: str
     DEFAULT_PAGE_SIZE: int = 10
     BROADCAST_URI: str
 

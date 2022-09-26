@@ -2,7 +2,7 @@ import graphene
 
 from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter
 from app.api.graphql.node import QueryGenerator, QueryNodeOne, QueryNodeMany
-from app.models.explorer import Block, Extrinsic, Event, Log, Transfer
+from app.models.explorer import Block, Extrinsic, Event, Log, Transfer, TaggedAccount
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
     RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, RuntimeType
 
@@ -495,4 +495,15 @@ class GraphQLQueries(metaclass=QueryGenerator):
         },
         order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
         paginated=True
+    )
+
+    get_tagged_account = QueryNodeOne(
+        class_name="GetTaggedAccount",
+        model_=TaggedAccount,
+        schema_overrides={"account_id": graphene.String(description='')},
+        filters={
+            TaggedAccount.account_id: ['eq', ],
+        },
+        order_by=TaggedAccount.account_id.desc(),
+        filter_required=True
     )
