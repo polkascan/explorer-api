@@ -98,6 +98,11 @@ class AbstractPaginatedType(graphene.ObjectType):
             page_key = 1
 
         pagination = paginate(query, page_key, page_size)
+
+        # Note: If we cross our block limit window, reset the next page for the new block limit window
+        if page_key and page_key * page_size >= block_limit_count:
+            pagination.next_page = None
+
         page_info = PaginationType(
             page_size=page_size,
             page_next=pagination.next_page,
@@ -253,10 +258,11 @@ class QueryNodeMany(QueryNodeOne):
                 if not block_limit_count or block_limit_count < 1:
                     block_limit_count = settings.BLOCK_LIMIT_COUNT
 
-                if pagination_obj:
+                block_attr_name = getattr(model, "__block_number_attr__", "block_number")
+                block_attr = getattr(model, block_attr_name, None)
 
+                if block_attr:
                     if not (block_limit_offset and block_limit_count):
-                        block_attr = getattr(model, "block_number")
                         last_block_nr = session.query(model, block_attr).order_by(block_attr.desc()).first()
                         block_limit_offset = last_block_nr and last_block_nr[1]
 
@@ -266,7 +272,7 @@ class QueryNodeMany(QueryNodeOne):
                     start_offset = block_limit_offset - block_limit_count
                     start_offset = start_offset and start_offset < 1 and 1 or start_offset
 
-                    query = query.filter(block_attr >= start_offset, block_attr <= block_limit_offset)
+                    query = query.filter(block_attr > start_offset, block_attr <= block_limit_offset)
 
                 if isinstance(order_by, Iterable):
                     query = query.order_by(*order_by)
