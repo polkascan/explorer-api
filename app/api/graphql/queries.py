@@ -61,9 +61,16 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=Event,
         order_by=(Event.block_number.desc(), Event.event_idx.desc(),),
         filters={
-            Event.block_number:  ['eq',],
+            Event.block_number:  ['eq', 'in', 'range'],
             Event.event_idx:  ['eq',],
-            Event.block_datetime:  ['eq', 'gt', 'lt', 'gte', 'lte'],
+            Event.block_datetime:  ['eq', 'gt', 'lt', 'gte', 'lte', 'in', 'range'],
+            Event.spec_name:  ['eq',],
+            Event.spec_version:  ['eq',],
+            #Event.dateRangeStart: string;
+            #Event.dateRangeEnd: string;
+            #Event.blockRangeStart: number;
+            #Event.blockRangeEnd: number;
+
         },
         filter_combinations={
             Event.block_number: (Event.event_idx,),
