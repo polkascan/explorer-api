@@ -100,7 +100,7 @@ class AbstractPaginatedType(graphene.ObjectType):
         pagination = paginate(query, page_key, page_size)
 
         # Note: If we cross our block limit window, reset the next page for the new block limit window
-        if page_key and page_key * page_size >= block_limit_count:
+        if page_key and (page_key * page_size >= block_limit_count) or len(pagination.items) < page_size:
             pagination.next_page = None
 
         page_info = PaginationType(
