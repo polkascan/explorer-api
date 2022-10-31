@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     DB_HARVESTER_NAME: str
     DEFAULT_PAGE_SIZE: int = 10
     BROADCAST_URI: str
+    BLOCK_LIMIT_COUNT: int
 
     SENTRY_PROJECT_NAME: str
     SENTRY_SERVER_NAME: str

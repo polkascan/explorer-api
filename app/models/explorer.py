@@ -25,6 +25,7 @@ from .field_types import INTEGER, NUMERIC, TINYINT, HashBinary, HashVarBinary, U
 
 class Block(BaseModel):
     __tablename__ = 'explorer_block'
+    __block_number_attr__ = 'number'
 
     number = sa.Column(INTEGER(unsigned=True, display_width=11), primary_key=True, autoincrement=False, nullable=False, index=True)
     parent_number = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
