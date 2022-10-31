@@ -5,7 +5,7 @@ from app.db import SessionManager
 from app.session import SessionLocal
 from app.models.explorer import Block, Event, Extrinsic, Transfer, Log
 
-from app.api.graphql.filters import ExtrinsicFilter
+from app.api.graphql.filters import ExtrinsicFilter, EventsFilter
 from app.api.graphql.schemas import ExtrinsicSchema
 
 from substrateinterface.utils.ss58 import ss58_decode
@@ -13,26 +13,6 @@ from substrateinterface.utils.ss58 import ss58_decode
 from graphene_sqlalchemy_filter import FilterSet
 from graphene_sqlalchemy import SQLAlchemyObjectType
 
-
-class EventFilter(FilterSet):
-    class Meta:
-        model = Event
-        fields = {
-            'block_number':  ['eq',],
-            'event_idx':  ['eq',],
-            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
-        }
-
-
-class EventsFilter(FilterSet):
-    class Meta:
-        model = Event
-        fields = {
-            'block_number':  ['eq',],
-            'event_module':  ['eq',],
-            'event_name':  ['eq',],
-            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
-        }
 
 
 class BlockSchema(SQLAlchemyObjectType):
@@ -127,7 +107,7 @@ class Subscription(graphene.ObjectType):
         with SessionManager(session_cls=SessionLocal) as session:
             latest_events = session.query(Event).order_by(Event.block_number.desc(), Event.event_idx.desc())
             if filters is not None:
-                latest_events = EventFilter.filter(info, latest_events, filters)
+                latest_events = EventsFilter.filter(info, latest_events, filters)
 
             latest_event = latest_events.first()
             if latest_event:
@@ -142,7 +122,7 @@ class Subscription(graphene.ObjectType):
                         query = session.query(Event).filter(Event.block_number.in_(event_records))
 
                         if filters is not None:
-                            query = EventFilter.filter(info, query, filters)
+                            query = EventsFilter.filter(info, query, filters)
 
                         for item in query.order_by(Event.block_number, Event.event_idx):
                             yield item
