@@ -255,7 +255,7 @@ class QueryNodeMany(QueryNodeOne):
             with SessionManager(session_cls=SessionLocal) as session:
                 query = session.query(model)
 
-                if not block_limit_count or block_limit_count < 1:
+                if not block_limit_count or block_limit_count < 1 or block_limit_count > settings.BLOCK_LIMIT_COUNT:
                     block_limit_count = settings.BLOCK_LIMIT_COUNT
 
                 block_attr_name = getattr(model, "__block_number_attr__", "block_number")
