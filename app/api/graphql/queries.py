@@ -1,6 +1,6 @@
 import graphene
 
-from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter
+from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter
 from app.api.graphql.node import QueryGenerator, QueryNodeOne, QueryNodeMany
 from app.models.explorer import Block, Extrinsic, Event, Log, Transfer, TaggedAccount
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
@@ -53,7 +53,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filter_combinations={
             Extrinsic.call_name: (Extrinsic.call_module,),
         }
-
     )
 
     get_event = QueryNodeOne(
@@ -61,9 +60,11 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=Event,
         order_by=(Event.block_number.desc(), Event.event_idx.desc(),),
         filters={
-            Event.block_number:  ['eq',],
-            Event.event_idx:  ['eq',],
-            Event.block_datetime:  ['eq', 'gt', 'lt', 'gte', 'lte'],
+            Event.block_number:  ['eq', 'gt', 'lt', 'gte', 'lte', 'in', 'range'],
+            Event.event_idx:  ['eq', 'gt', 'lt', 'gte', 'lte'],
+            Event.block_datetime:  ['eq', 'gt', 'lt', 'gte', 'lte', 'in', 'range'],
+            Event.spec_name:  ['eq',],
+            Event.spec_version:  ['eq',],
         },
         filter_combinations={
             Event.block_number: (Event.event_idx,),
@@ -75,13 +76,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         class_name="GetEvents",
         model_=Event,
         order_by=(Event.block_number.desc(), Event.event_idx.desc(),),
-        filters={
-            Event.block_number:  ['eq',],
-            Event.event_module:  ['eq',],
-            Event.event_name:  ['eq',],
-            Event.extrinsic_idx:  ['eq',],
-            Event.block_datetime: ['eq', 'gt', 'lt', 'gte', 'lte'],
-        },
+        filters=EventsFilter(),
         paginated=True,
         filter_combinations={
             Event.event_name: (Event.event_module,),
