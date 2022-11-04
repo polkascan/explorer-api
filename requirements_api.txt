@@ -19,3 +19,6 @@ git+https://github.com/polkascan/graphene-sqlalchemy-filter.git
 substrate-interface~=1.1.7
 broadcaster==0.2.0
 asyncio-redis==0.16.0
+opentelemetry-api
+opentelemetry-instrumentation
+opentelemetry-instrumentation-fastapi
