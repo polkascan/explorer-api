@@ -503,8 +503,8 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filter_required=True
     )
 
-    get_event_index_account = QueryNodeMany(
-        class_name="GetEventIndexAccount",
+    get_events_for_account = QueryNodeMany(
+        class_name="GetEventsForAccount",
         model_=CodecEventIndexAccount,
         order_by=(CodecEventIndexAccount.block_number.desc()),
         schema_overrides={"account_id": graphene.String(description='')},
@@ -514,7 +514,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             CodecEventIndexAccount.account_id: ['eq', ],
         },
         filter_required=True,
-        # paginated=True,
+        paginated=True,
         filter_combinations={
             CodecEventIndexAccount.event_name: (CodecEventIndexAccount.pallet, ),
         }
