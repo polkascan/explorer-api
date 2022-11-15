@@ -1,6 +1,6 @@
 import graphene
 
-from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter
+from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter, CodecEventIndexAccountFilter
 from app.api.graphql.node import QueryGenerator, QueryNodeOne, QueryNodeMany
 from app.models.explorer import Block, Extrinsic, Event, Log, Transfer, TaggedAccount
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
@@ -508,11 +508,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         model_=CodecEventIndexAccount,
         order_by=(CodecEventIndexAccount.block_number.desc()),
         schema_overrides={"account_id": graphene.String(description='')},
-        filters={
-            CodecEventIndexAccount.pallet: ['eq', ],
-            CodecEventIndexAccount.event_name: ['eq', ],
-            CodecEventIndexAccount.account_id: ['eq', ],
-        },
+        filters=CodecEventIndexAccountFilter(),
         filter_required=True,
         paginated=True,
         filter_combinations={

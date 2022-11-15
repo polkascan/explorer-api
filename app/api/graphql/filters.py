@@ -3,6 +3,7 @@ import graphene
 from graphene_sqlalchemy_filter import FilterSet
 from scalecodec.utils.ss58 import ss58_decode
 from app.models.explorer import Block, Extrinsic, Event
+from app.models.runtime import CodecEventIndexAccount
 
 
 class BlocksFilter(FilterSet):
@@ -72,4 +73,17 @@ class EventsFilter(FilterSet):
             "block_datetime": ['eq', 'gt', 'lt', 'gte', 'lte', 'range'],
             "spec_name": ['eq', ],
             "spec_version": ['eq', ],
+        }
+
+
+class CodecEventIndexAccountFilter(FilterSet):
+    class Meta:
+        model = CodecEventIndexAccount
+        fields = {
+            "block_number": ['eq', 'gt', 'gte', 'lt', 'lte', 'range'],
+            "block_datetime": ['eq', 'gt', 'gte', 'lt', 'lte', 'range'],
+            "attribute_name": ['eq',],
+            "pallet": ['eq', ],
+            "event_name": ['eq', ],
+            "account_id": ['eq', ],
         }
