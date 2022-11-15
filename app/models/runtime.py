@@ -54,7 +54,7 @@ class CodecEventIndexAccount(BaseModel):
 
     block_number = sa.Column(sa.Integer(), primary_key=True, nullable=False)
     event_idx = sa.Column(sa.Integer(), primary_key=True, nullable=False)
-    attribute_index = sa.Column(sa.Integer(), primary_key=True, nullable=False)
+    attribute_name = sa.Column(sa.String(64), primary_key=True, nullable=False)
 
     account_id = sa.Column(HashVarBinary(33), nullable=False, index=True)
     pallet = sa.Column(sa.String(255), nullable=False)
@@ -174,11 +174,11 @@ class RuntimeEventAttribute(BaseModel):
     __tablename__ = 'runtime_event_attribute'
     __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
-    spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
+    spec_name = sa.Column(sa.String(64), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
-    pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
+    pallet = sa.Column(sa.String(64), nullable=False, primary_key=True, index=True)
     event_name = sa.Column(sa.String(255), primary_key=True, index=True)
-    event_attribute_idx = sa.Column(sa.Integer(), nullable=False, index=True, primary_key=True)
+    event_attribute_name = sa.Column(sa.String(64), nullable=False, index=True, primary_key=True)
     scale_type = sa.Column(sa.String(255))
 
 

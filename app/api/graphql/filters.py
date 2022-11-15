@@ -1,7 +1,7 @@
 import graphene
 
 from graphene_sqlalchemy_filter import FilterSet
-from substrateinterface.utils.ss58 import ss58_decode
+from scalecodec.utils.ss58 import ss58_decode
 from app.models.explorer import Block, Extrinsic, Event
 
 

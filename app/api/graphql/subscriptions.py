@@ -8,11 +8,10 @@ from app.models.explorer import Block, Event, Extrinsic, Transfer, Log
 from app.api.graphql.filters import ExtrinsicFilter, EventsFilter
 from app.api.graphql.schemas import ExtrinsicSchema
 
-from substrateinterface.utils.ss58 import ss58_decode
+from scalecodec.utils.ss58 import ss58_decode
 
 from graphene_sqlalchemy_filter import FilterSet
 from graphene_sqlalchemy import SQLAlchemyObjectType
-
 
 
 class BlockSchema(SQLAlchemyObjectType):
