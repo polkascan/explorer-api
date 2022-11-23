@@ -503,7 +503,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filter_required=True
     )
 
-    get_events_for_account = QueryNodeMany(
+    get_events_by_account = QueryNodeMany(
         class_name="GetEventsForAccount",
         model_=CodecEventIndexAccount,
         order_by=(CodecEventIndexAccount.block_number.desc()),

@@ -30,6 +30,15 @@ class EventSchema(SQLAlchemyObjectType):
         model = Event
 
 
+class EventIndexAccountSchema(SQLAlchemyObjectType):
+    block_number = graphene.Int()
+    event_idx = graphene.Int()
+    attribute_name = graphene.String()
+
+    class Meta:
+        model = CodecEventIndexAccount
+
+
 class TransferSchema(SQLAlchemyObjectType):
     block_number = graphene.Int()
     event_idx = graphene.Int()
@@ -86,7 +95,7 @@ class Subscription(graphene.ObjectType):
     subscribe_new_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter())
     subscribe_new_transfer = graphene.Field(TransferSchema, filters=TransferFilter())
     subscribe_new_log = graphene.Field(LogSchema, filters=LogFilter())
-    subscribe_new_event_for_account = graphene.Field(EventSchema, filters=CodecEventIndexAccountFilter())
+    subscribe_new_event_by_account = graphene.Field(EventIndexAccountSchema, filters=CodecEventIndexAccountFilter())
 
     async def subscribe_subscribe_new_block(root, info):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -200,7 +209,7 @@ class Subscription(graphene.ObjectType):
                             yield item
 
 
-    async def subscribe_new_event_for_account(root, info, filters=None):
+    async def subscribe_subscribe_new_event_by_account(root, info, filters=None):
         with SessionManager(session_cls=SessionLocal) as session:
             latest_events = session.query(CodecEventIndexAccount).order_by(CodecEventIndexAccount.block_number.desc(), CodecEventIndexAccount.event_idx.desc())
             if filters is not None:
