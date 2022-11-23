@@ -2,17 +2,17 @@ import graphene
 
 from app import settings, broadcast
 from app.db import SessionManager
+from app.models.runtime import CodecEventIndexAccount
 from app.session import SessionLocal
 from app.models.explorer import Block, Event, Extrinsic, Transfer, Log
 
-from app.api.graphql.filters import ExtrinsicFilter, EventsFilter
+from app.api.graphql.filters import ExtrinsicFilter, EventsFilter, CodecEventIndexAccountFilter
 from app.api.graphql.schemas import ExtrinsicSchema
 
-from substrateinterface.utils.ss58 import ss58_decode
+from scalecodec.utils.ss58 import ss58_decode
 
 from graphene_sqlalchemy_filter import FilterSet
 from graphene_sqlalchemy import SQLAlchemyObjectType
-
 
 
 class BlockSchema(SQLAlchemyObjectType):
@@ -28,6 +28,15 @@ class EventSchema(SQLAlchemyObjectType):
 
     class Meta:
         model = Event
+
+
+class EventIndexAccountSchema(SQLAlchemyObjectType):
+    block_number = graphene.Int()
+    event_idx = graphene.Int()
+    attribute_name = graphene.String()
+
+    class Meta:
+        model = CodecEventIndexAccount
 
 
 class TransferSchema(SQLAlchemyObjectType):
@@ -86,6 +95,7 @@ class Subscription(graphene.ObjectType):
     subscribe_new_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter())
     subscribe_new_transfer = graphene.Field(TransferSchema, filters=TransferFilter())
     subscribe_new_log = graphene.Field(LogSchema, filters=LogFilter())
+    subscribe_new_event_by_account = graphene.Field(EventIndexAccountSchema, filters=CodecEventIndexAccountFilter())
 
     async def subscribe_subscribe_new_block(root, info):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -196,4 +206,29 @@ class Subscription(graphene.ObjectType):
                             query = LogFilter.filter(info, query, filters)
 
                         for item in query.order_by(Log.block_number, Log.log_idx):
+                            yield item
+
+
+    async def subscribe_subscribe_new_event_by_account(root, info, filters=None):
+        with SessionManager(session_cls=SessionLocal) as session:
+            latest_events = session.query(CodecEventIndexAccount).order_by(CodecEventIndexAccount.block_number.desc(), CodecEventIndexAccount.event_idx.desc())
+            if filters is not None:
+                latest_events = CodecEventIndexAccountFilter.filter(info, latest_events, filters)
+
+            latest_event = latest_events.first()
+            if latest_event:
+                yield latest_event
+
+        async with broadcast.subscribe(channel=f"{settings.CHAIN_ID}-last-block") as subscriber:
+            async for event in subscriber:
+                if event.message:
+                    with SessionManager(session_cls=SessionLocal) as session:
+                        event_records = event.message.split(",")
+                        event_records = event_records[-100:] # Sanity precaution
+                        query = session.query(CodecEventIndexAccount).filter(CodecEventIndexAccount.block_number.in_(event_records))
+
+                        if filters is not None:
+                            query = CodecEventIndexAccountFilter.filter(info, query, filters)
+
+                        for item in query.order_by(CodecEventIndexAccount.block_number, CodecEventIndexAccount.event_idx):
                             yield item
