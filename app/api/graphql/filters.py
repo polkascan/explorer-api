@@ -83,7 +83,7 @@ class CodecEventIndexAccountFilter(FilterSet):
             "block_number": ['eq', 'gt', 'gte', 'lt', 'lte', 'range'],
             "block_datetime": ['eq', 'gt', 'gte', 'lt', 'lte', 'range'],
             "attribute_name": ['eq',],
-            "pallet": ['eq', ],
-            "event_name": ['eq', ],
+            "pallet": ['eq', 'in'],
+            "event_name": ['eq', 'in'],
             "account_id": ['eq', ],
         }
