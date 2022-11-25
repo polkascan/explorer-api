@@ -100,6 +100,8 @@ class Runtime(BaseModel):
     count_storage_functions = sa.Column(sa.Integer(), default=0, nullable=False)
     count_constants = sa.Column(sa.Integer(), nullable=False, server_default='0')
     count_errors = sa.Column(sa.Integer(), nullable=False, server_default='0')
+    block_number = sa.Column(sa.Integer(), nullable=False)
+    block_hash = sa.Column(HashBinary(32), nullable=False)
 
 
 class RuntimeCall(BaseModel):
