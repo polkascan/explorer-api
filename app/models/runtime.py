@@ -88,6 +88,7 @@ class CodecMetadata(BaseModel):
 class Runtime(BaseModel):
     __tablename__ = 'runtime'
     __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
+    __block_limit_exclude__ = True
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
