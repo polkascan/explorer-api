@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from app import settings
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 
 max_tries = 60 * 5  # 5 minutes

@@ -54,7 +54,6 @@ async def __patched___handle_http_request(*args, **kwargs):
 
 
 async def __patched___handle_websocket_message(*args, **kwargs):
-    import pdb;pdb.set_trace()
     return await __org_handle_websocket_message(*args, **kwargs)
 
 

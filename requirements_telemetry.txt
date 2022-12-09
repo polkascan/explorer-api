@@ -1,0 +1,3 @@
+opentelemetry-distro==0.29b0
+opentelemetry-exporter-otlp==1.10.0
+opentelemetry-instrumentation-fastapi==0.29b0

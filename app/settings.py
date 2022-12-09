@@ -1,14 +1,20 @@
-import os
+import sys, os
+
 from typing import List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, HttpUrl, validator
+from dotenv import load_dotenv
+
 
 default_env_ext = ".env"
 local_env_ext = ".local.env"
+test_env_ext = ".test.env"
 
 
 class Settings(BaseSettings):
     CHAIN_ID: str
+    HTTP_MOUNT: str = "/graphql"
+    WS_MOUNT: str = "/graphql-ws"
     API_STR: str = "/api/"
     SERVER_ADDR: str
     SERVER_PORT: int

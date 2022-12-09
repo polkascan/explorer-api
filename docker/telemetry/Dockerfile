@@ -1,0 +1,44 @@
+#https://pythonspeed.com/articles/base-image-python-docker-images/
+#FROM python:3.9-slim-buster
+FROM python:3.8-buster
+
+# install git
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git
+
+# Set environment varibles
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+ENV PYTHONPATH "${PYTHONPATH}:/usr/src"
+
+## set working directory
+RUN mkdir -p /usr/src
+WORKDIR /usr/src
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+
+RUN git clone -b main https://github.com/SigNoz/signoz.git
+RUN cd signoz/deploy/
+RUN ./install.sh
+
+## add requirements
+COPY ./requirements_api.txt /usr/src/requirements.txt
+
+## install requirements
+RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements_telemetry.txt
+
+# add app
+COPY . /usr/src
+
+# Install opentelemetry instrumentation
+RUN opentelemetry-bootstrap --action=install
+
+EXPOSE 3301
+EXPOSE 8000
+
+CMD bash -c "/usr/src/start-telemetry.sh"
