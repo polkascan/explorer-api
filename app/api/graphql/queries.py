@@ -4,7 +4,7 @@ from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter,
 from app.api.graphql.node import QueryGenerator, QueryNodeOne, QueryNodeMany
 from app.models.explorer import Block, Extrinsic, Event, Log, Transfer, TaggedAccount
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
-    RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, RuntimeType, CodecEventIndexAccount
+    RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, CodecEventIndexAccount
 
 
 class GraphQLQueries(metaclass=QueryGenerator):
@@ -374,40 +374,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeStorage.spec_name: (RuntimeStorage.spec_version,),
             RuntimeStorage.spec_version: (RuntimeStorage.spec_name,),
             RuntimeStorage.pallet: (RuntimeStorage.spec_name, RuntimeStorage.spec_version,),
-        }
-    )
-
-    get_runtime_type = QueryNodeOne(
-        class_name="GetRuntimeType",
-        model_=RuntimeType,
-        filters={
-            RuntimeType.spec_name:  ['eq',],
-            RuntimeType.spec_version:  ['eq',],
-            RuntimeType.scale_type: ['eq', ],
-        },
-        filter_required=True,
-        order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
-        filter_combinations={
-            RuntimeType.spec_name: (RuntimeType.spec_version, RuntimeType.scale_type),
-            RuntimeType.spec_version: (RuntimeType.spec_name,  RuntimeType.scale_type),
-            RuntimeType.scale_type: (RuntimeType.spec_name, RuntimeType.spec_version),
-        }
-    )
-
-    get_runtime_types = QueryNodeMany(
-        class_name="GetRuntimeTypes",
-        model_=RuntimeType,
-        filters={
-            RuntimeType.spec_name:  ['eq',],
-            RuntimeType.spec_version:  ['eq',],
-            RuntimeType.scale_type: ['eq', ],
-        },
-        filter_required=True,
-        #paginated=True,
-        order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
-        filter_combinations={
-            RuntimeType.spec_name: (RuntimeType.spec_version,),
-            RuntimeType.spec_version: (RuntimeType.spec_name,),
         }
     )
 

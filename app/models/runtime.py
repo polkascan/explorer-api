@@ -130,6 +130,7 @@ class RuntimeCallArgument(BaseModel):
     call_argument_idx = sa.Column(sa.Integer(), primary_key=True, index=True)
     name = sa.Column(sa.String(255), index=True)
     scale_type = sa.Column(sa.String(255))
+    scale_type_composition = sa.Column(sa.JSON())
 
 
 class RuntimeConstant(BaseModel):
@@ -141,7 +142,8 @@ class RuntimeConstant(BaseModel):
     pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     constant_name = sa.Column(sa.String(255), primary_key=True, index=True)
     pallet_constant_idx = sa.Column(sa.Integer(), nullable=False, index=True)
-    scale_type = sa.Column(sa.String(255))
+    scale_type = sa.Column(sa.String(512))
+    scale_type_composition = sa.Column(sa.JSON())
     value = sa.Column(sa.JSON())
     documentation = sa.Column(sa.Text())
 
@@ -183,6 +185,7 @@ class RuntimeEventAttribute(BaseModel):
     event_name = sa.Column(sa.String(255), primary_key=True, index=True)
     event_attribute_name = sa.Column(sa.String(64), nullable=False, index=True, primary_key=True)
     scale_type = sa.Column(sa.String(255))
+    scale_type_composition = sa.Column(sa.JSON())
 
 
 class RuntimePallet(BaseModel):
@@ -221,15 +224,3 @@ class RuntimeStorage(BaseModel):
     value_scale_type = sa.Column(sa.String(255))
     is_linked = sa.Column(sa.Boolean())
     documentation = sa.Column(sa.Text())
-
-
-class RuntimeType(BaseModel):
-    __tablename__ = 'runtime_type'
-    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
-
-    spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
-    spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
-    scale_type = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
-    decoder_class = sa.Column(sa.String(255), nullable=True)
-    is_core_primitive = sa.Column(sa.Boolean())
-    is_runtime_primitive = sa.Column(sa.Boolean())
