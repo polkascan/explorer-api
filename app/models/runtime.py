@@ -129,7 +129,7 @@ class RuntimeCallArgument(BaseModel):
     call_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     call_argument_idx = sa.Column(sa.Integer(), primary_key=True, index=True)
     name = sa.Column(sa.String(255), index=True)
-    scale_type = sa.Column(sa.String(255))
+    scale_type = sa.Column(sa.String(512))
     scale_type_composition = sa.Column(sa.JSON())
 
 
@@ -184,7 +184,7 @@ class RuntimeEventAttribute(BaseModel):
     pallet = sa.Column(sa.String(64), nullable=False, primary_key=True, index=True)
     event_name = sa.Column(sa.String(255), primary_key=True, index=True)
     event_attribute_name = sa.Column(sa.String(64), nullable=False, index=True, primary_key=True)
-    scale_type = sa.Column(sa.String(255))
+    scale_type = sa.Column(sa.String(512))
     scale_type_composition = sa.Column(sa.JSON())
 
 
@@ -217,10 +217,10 @@ class RuntimeStorage(BaseModel):
     modifier = sa.Column(sa.String(64))
     key_prefix_pallet = sa.Column(HashBinary(16))
     key_prefix_name = sa.Column(HashBinary(16))
-    key1_scale_type = sa.Column(sa.String(255))
+    key1_scale_type = sa.Column(sa.String(512))
     key1_hasher = sa.Column(sa.String(255))
-    key2_scale_type = sa.Column(sa.String(255))
+    key2_scale_type = sa.Column(sa.String(512))
     key2_hasher = sa.Column(sa.String(255))
-    value_scale_type = sa.Column(sa.String(255))
+    value_scale_type = sa.Column(sa.String(512))
     is_linked = sa.Column(sa.Boolean())
     documentation = sa.Column(sa.Text())
