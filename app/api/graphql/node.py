@@ -1,5 +1,4 @@
-import math
-from collections import Iterable
+from collections.abc import Iterable
 
 import graphene
 from graphql import GraphQLError
@@ -232,7 +231,7 @@ class QueryNodeOne(object):
 
                 if filters:
                     QueryNodeOne.check_filters(class_name, filters, filter_obj, filter_combinations)
-                    return filter_obj.filter(info, query, filters).one()
+                    return filter_obj.filter(info, query, filters).first()
 
                 elif filter_required:
                     raise GraphQLError(f'{class_name} requires filters')
