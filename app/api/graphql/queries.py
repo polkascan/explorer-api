@@ -2,7 +2,7 @@ import graphene
 
 from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter, CodecEventIndexAccountFilter
 from app.api.graphql.node import QueryGenerator, QueryNodeOne, QueryNodeMany
-from app.models.explorer import Block, Extrinsic, Event, Log, Transfer, TaggedAccount
+from app.models.explorer import Block, Extrinsic, Event, Log, TaggedAccount
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
     RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, CodecEventIndexAccount
 
@@ -409,52 +409,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             Log.complete:  ['eq',],
         },
         order_by=(Log.block_number.desc(), Log.log_idx.desc()),
-        paginated=True
-    )
-
-    get_transfer = QueryNodeOne(
-        class_name="GetTransfer",
-        model_=Transfer,
-        filters={
-            Transfer.block_number: ['eq',],
-            Transfer.event_idx: ['eq',],
-            Transfer.extrinsic_idx: ['eq',],
-            Transfer.from_multi_address_type: ['eq',],
-            Transfer.from_multi_address_account_id: ['eq',],
-            Transfer.from_multi_address_address_20: ['eq',],
-            Transfer.from_multi_address_address_32: ['eq',],
-            Transfer.to_multi_address_type: ['eq', ],
-            Transfer.to_multi_address_account_id: ['eq', ],
-            Transfer.to_multi_address_address_20: ['eq', ],
-            Transfer.to_multi_address_address_32: ['eq', ],
-            Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
-        },
-        filter_required=True,
-        order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
-        filter_combinations={
-            Transfer.block_number: (Transfer.event_idx,),
-            Transfer.event_idx: (Transfer.block_number,),
-        }
-    )
-
-    get_transfers = QueryNodeMany(
-        class_name="GetTransfers",
-        model_=Transfer,
-        filters={
-            Transfer.block_number: ['eq', ],
-            Transfer.event_idx: ['eq', ],
-            Transfer.extrinsic_idx: ['eq', ],
-            Transfer.from_multi_address_type: ['eq', ],
-            Transfer.from_multi_address_account_id: ['eq', ],
-            Transfer.from_multi_address_address_20: ['eq', ],
-            Transfer.from_multi_address_address_32: ['eq', ],
-            Transfer.to_multi_address_type: ['eq', ],
-            Transfer.to_multi_address_account_id: ['eq', ],
-            Transfer.to_multi_address_address_20: ['eq', ],
-            Transfer.to_multi_address_address_32: ['eq', ],
-            Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
-        },
-        order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
         paginated=True
     )
 

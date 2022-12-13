@@ -1,5 +1,4 @@
-import math
-from collections import Iterable
+from collections.abc import Iterable
 
 import graphene
 from graphql import GraphQLError
