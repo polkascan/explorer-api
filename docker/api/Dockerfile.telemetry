@@ -2,6 +2,9 @@
 #FROM python:3.9-slim-buster
 FROM python:3.8-buster
 
+EXPOSE 3301
+EXPOSE 8000
+
 # install git
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -20,15 +23,19 @@ WORKDIR /usr/src
 # Upgrade pip
 RUN pip install --upgrade pip
 
+
 ## add requirements
-COPY ./requirements_api.txt /usr/src/requirements.txt
+COPY ./requirements_api.txt /usr/src/requirements_api.txt
+COPY ./requirements_api_telemetry.txt /usr/src/requirements_api_telemetry.txt
 
 ## install requirements
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements_api.txt
+RUN pip3 install -r requirements_api_telemetry.txt
 
 # add app
 COPY . /usr/src
 
-EXPOSE 8000
+# Install opentelemetry instrumentation
+RUN opentelemetry-bootstrap --action=install
 
-CMD bash -c "/usr/src/start-api-logging.sh"
+CMD bash -c "/usr/src/start-api-telemetry.sh"

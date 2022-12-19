@@ -20,25 +20,17 @@ WORKDIR /usr/src
 # Upgrade pip
 RUN pip install --upgrade pip
 
-
-RUN git clone -b main https://github.com/SigNoz/signoz.git
-RUN cd signoz/deploy/
-RUN ./install.sh
-
 ## add requirements
 COPY ./requirements_api.txt /usr/src/requirements.txt
+COPY ./requirements_api_query_logging.txt /usr/src/requirements_query_logging.txt
 
 ## install requirements
 RUN pip3 install -r requirements.txt
-RUN pip3 install -r requirements_telemetry.txt
+RUN pip3 install -r requirements_query_logging.txt
 
 # add app
 COPY . /usr/src
 
-# Install opentelemetry instrumentation
-RUN opentelemetry-bootstrap --action=install
-
-EXPOSE 3301
 EXPOSE 8000
 
-CMD bash -c "/usr/src/start-telemetry.sh"
+CMD bash -c "/usr/src/start-api-query-logging.sh"

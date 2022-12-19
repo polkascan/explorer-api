@@ -22,6 +22,7 @@ services:
     depends_on:
       - redis
       - db
+      - api
     environment:
       - DB_USERNAME=root
       - DB_NAME=explorer_api
@@ -37,9 +38,9 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./docker/api/Dockerfile
-    image: polkascan/explorer-api-beta
-    command: bash -c "/usr/src/start-api.sh"
+      dockerfile: ${API_DOCKER_FILE:-./docker/api/Dockerfile}
+    image: ${API_DOCKER_IMAGE:-polkascan/explorer-api-beta}
+    command: ${API_DOCKER_COMMAND:-bash -c "/usr/src/start-api.sh"}
     ports:
       - "8000:8000"
     depends_on:
@@ -50,11 +51,15 @@ services:
       - DB_NAME=explorer_api
       - DB_HOST=mysql
       - DB_PORT=3306
+      - BLOCK_LIMIT_COUNT=500000
+      - HTTP_MOUNT=/graphql/
+      - WS_MOUNT=/graphql-ws/
+      - DB_HARVESTER_NAME=polkascan
       - DB_PASSWORD=root
       - DOMAIN=localhost
-      - SERVER_ADDR=0.0.0.0
+      - SERVER_ADDR=localhost
       - SERVER_PORT=8000
-      - WEBSOCKET_URI=ws://0.0.0.0:8000
+      - WEBSOCKET_URI=ws://localhost:8000
       - BACKEND_CORS_ORIGINS=[]
       - BROADCAST_URI=redis://redis:6379
       - API_SQLA_URI=mysql+pymysql://root:root@mysql:3306/explorer_api?charset=utf8mb4
@@ -62,3 +67,7 @@ services:
       - SENTRY_PROJECT_NAME=explorer-api-v2
       - SENTRY_SERVER_NAME=polkadapt
       - SENTRY_DSN=
+      # Telemetry specific variables
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=explorer-api
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
