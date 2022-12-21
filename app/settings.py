@@ -1,14 +1,10 @@
-import sys, os
-
+import os
 from typing import List, Optional, Union
-
 from pydantic import AnyHttpUrl, BaseSettings, HttpUrl, validator
-from dotenv import load_dotenv
 
 
 default_env_ext = ".env"
 local_env_ext = ".local.env"
-test_env_ext = ".test.env"
 
 
 class Settings(BaseSettings):

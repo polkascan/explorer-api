@@ -46,6 +46,10 @@ services:
     depends_on:
       - redis
       - db
+#    # Note: enable when running with Signoz telemetry
+#    networks:
+#        - default
+#        - clickhouse-setup_default
     environment:
       - DB_USERNAME=root
       - DB_NAME=explorer_api
@@ -67,7 +71,8 @@ services:
       - SENTRY_PROJECT_NAME=explorer-api-v2
       - SENTRY_SERVER_NAME=polkadapt
       - SENTRY_DSN=
-      # Telemetry specific variables
-      - OTEL_METRICS_EXPORTER=none
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=explorer-api
-      - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
+
+##Note: enable when running with Signoz telemetry
+#networks:
+#    clickhouse-setup_default: # external signoz created network
+#        external: true

@@ -2,7 +2,6 @@
 #FROM python:3.9-slim-buster
 FROM python:3.8-buster
 
-EXPOSE 3301
 EXPOSE 8000
 
 # install git
@@ -23,7 +22,6 @@ WORKDIR /usr/src
 # Upgrade pip
 RUN pip install --upgrade pip
 
-
 ## add requirements
 COPY ./requirements_api.txt /usr/src/requirements_api.txt
 COPY ./requirements_api_telemetry.txt /usr/src/requirements_api_telemetry.txt
@@ -31,6 +29,9 @@ COPY ./requirements_api_telemetry.txt /usr/src/requirements_api_telemetry.txt
 ## install requirements
 RUN pip3 install -r requirements_api.txt
 RUN pip3 install -r requirements_api_telemetry.txt
+
+# Fix protobuf issue related to opentelemetry
+RUN pip3 install -Iv protobuf==3.20.1
 
 # add app
 COPY . /usr/src
