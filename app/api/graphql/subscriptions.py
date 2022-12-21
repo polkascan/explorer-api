@@ -2,17 +2,17 @@ import graphene
 
 from app import settings, broadcast
 from app.db import SessionManager
+from app.models.runtime import CodecEventIndexAccount
 from app.session import SessionLocal
-from app.models.explorer import Block, Event, Extrinsic, Transfer, Log
+from app.models.explorer import Block, Event, Extrinsic, Log
 
-from app.api.graphql.filters import ExtrinsicFilter, EventsFilter
+from app.api.graphql.filters import ExtrinsicFilter, EventsFilter, CodecEventIndexAccountFilter
 from app.api.graphql.schemas import ExtrinsicSchema
 
-from substrateinterface.utils.ss58 import ss58_decode
+from scalecodec.utils.ss58 import ss58_decode
 
 from graphene_sqlalchemy_filter import FilterSet
 from graphene_sqlalchemy import SQLAlchemyObjectType
-
 
 
 class BlockSchema(SQLAlchemyObjectType):
@@ -30,35 +30,13 @@ class EventSchema(SQLAlchemyObjectType):
         model = Event
 
 
-class TransferSchema(SQLAlchemyObjectType):
+class EventIndexAccountSchema(SQLAlchemyObjectType):
     block_number = graphene.Int()
     event_idx = graphene.Int()
+    attribute_name = graphene.String()
 
     class Meta:
-        model = Transfer
-
-
-class TransferFilter(FilterSet):
-    from_multi_address_account_id = graphene.String(description='')
-    to_multi_address_account_id = graphene.String(description='')
-
-    class Meta:
-        model = Transfer
-        fields = {
-            'block_number':  ['eq',],
-            'event_idx':  ['eq',],
-            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
-        }
-
-    @staticmethod
-    def from_multi_address_account_id_filter(info, query, value):
-        """ """
-        return Transfer.from_multi_address_account_id == ss58_decode(value)
-
-    @staticmethod
-    def to_multi_address_account_id_filter(info, query, value):
-        """ """
-        return Transfer.to_multi_address_account_id == ss58_decode(value)
+        model = CodecEventIndexAccount
 
 
 class LogSchema(SQLAlchemyObjectType):
@@ -84,8 +62,8 @@ class Subscription(graphene.ObjectType):
     subscribe_new_block = graphene.Field(BlockSchema)
     subscribe_new_event = graphene.Field(EventSchema, filters=EventsFilter())
     subscribe_new_extrinsic = graphene.Field(ExtrinsicSchema, filters=ExtrinsicFilter())
-    subscribe_new_transfer = graphene.Field(TransferSchema, filters=TransferFilter())
     subscribe_new_log = graphene.Field(LogSchema, filters=LogFilter())
+    subscribe_new_event_by_account = graphene.Field(EventIndexAccountSchema, filters=CodecEventIndexAccountFilter())
 
     async def subscribe_subscribe_new_block(root, info):
         with SessionManager(session_cls=SessionLocal) as session:
@@ -150,30 +128,6 @@ class Subscription(graphene.ObjectType):
                         for item in query.order_by(Extrinsic.block_number, Extrinsic.extrinsic_idx):
                             yield item
 
-    async def subscribe_subscribe_new_transfer(root, info, filters=None):
-
-        with SessionManager(session_cls=SessionLocal) as session:
-            latest_transfer = session.query(Transfer).order_by(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc())
-            if filters is not None:
-                latest_transfer = TransferFilter.filter(info, latest_transfer, filters)
-            latest_transfer = latest_transfer.first()
-            if latest_transfer:
-                yield latest_transfer
-
-        async with broadcast.subscribe(channel=f"{settings.CHAIN_ID}-last-block") as subscriber:
-            async for event in subscriber:
-                if event.message:
-                    with SessionManager(session_cls=SessionLocal) as session:
-                        transfer_records = event.message.split(",")
-                        transfer_records = transfer_records[-100:] # Sanity precaution
-                        query = session.query(Transfer).filter(Transfer.block_number.in_(transfer_records))
-
-                        if filters is not None:
-                            query = TransferFilter.filter(info, query, filters)
-
-                        for item in query.order_by(Transfer.block_number, Transfer.extrinsic_idx):
-                            yield item
-
     async def subscribe_subscribe_new_log(root, info, filters=None):
 
         with SessionManager(session_cls=SessionLocal) as session:
@@ -196,4 +150,29 @@ class Subscription(graphene.ObjectType):
                             query = LogFilter.filter(info, query, filters)
 
                         for item in query.order_by(Log.block_number, Log.log_idx):
+                            yield item
+
+
+    async def subscribe_subscribe_new_event_by_account(root, info, filters=None):
+        with SessionManager(session_cls=SessionLocal) as session:
+            latest_events = session.query(CodecEventIndexAccount).order_by(CodecEventIndexAccount.block_number.desc(), CodecEventIndexAccount.event_idx.desc())
+            if filters is not None:
+                latest_events = CodecEventIndexAccountFilter.filter(info, latest_events, filters)
+
+            latest_event = latest_events.first()
+            if latest_event:
+                yield latest_event
+
+        async with broadcast.subscribe(channel=f"{settings.CHAIN_ID}-last-block") as subscriber:
+            async for event in subscriber:
+                if event.message:
+                    with SessionManager(session_cls=SessionLocal) as session:
+                        event_records = event.message.split(",")
+                        event_records = event_records[-100:] # Sanity precaution
+                        query = session.query(CodecEventIndexAccount).filter(CodecEventIndexAccount.block_number.in_(event_records))
+
+                        if filters is not None:
+                            query = CodecEventIndexAccountFilter.filter(info, query, filters)
+
+                        for item in query.order_by(CodecEventIndexAccount.block_number, CodecEventIndexAccount.event_idx):
                             yield item

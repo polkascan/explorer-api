@@ -1,10 +1,10 @@
 import graphene
 
-from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter
+from app.api.graphql.filters import BlocksFilter, ExtrinsicFilter, EventsFilter, CodecEventIndexAccountFilter
 from app.api.graphql.node import QueryGenerator, QueryNodeOne, QueryNodeMany
-from app.models.explorer import Block, Extrinsic, Event, Log, Transfer, TaggedAccount
+from app.models.explorer import Block, Extrinsic, Event, Log, TaggedAccount
 from app.models.runtime import Runtime, RuntimeCall, RuntimeCallArgument, RuntimeConstant, RuntimeErrorMessage, \
-    RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, RuntimeType
+    RuntimeEvent, RuntimeEventAttribute, RuntimePallet, RuntimeStorage, CodecEventIndexAccount
 
 
 class GraphQLQueries(metaclass=QueryGenerator):
@@ -377,40 +377,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
         }
     )
 
-    get_runtime_type = QueryNodeOne(
-        class_name="GetRuntimeType",
-        model_=RuntimeType,
-        filters={
-            RuntimeType.spec_name:  ['eq',],
-            RuntimeType.spec_version:  ['eq',],
-            RuntimeType.scale_type: ['eq', ],
-        },
-        filter_required=True,
-        order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
-        filter_combinations={
-            RuntimeType.spec_name: (RuntimeType.spec_version, RuntimeType.scale_type),
-            RuntimeType.spec_version: (RuntimeType.spec_name,  RuntimeType.scale_type),
-            RuntimeType.scale_type: (RuntimeType.spec_name, RuntimeType.spec_version),
-        }
-    )
-
-    get_runtime_types = QueryNodeMany(
-        class_name="GetRuntimeTypes",
-        model_=RuntimeType,
-        filters={
-            RuntimeType.spec_name:  ['eq',],
-            RuntimeType.spec_version:  ['eq',],
-            RuntimeType.scale_type: ['eq', ],
-        },
-        filter_required=True,
-        #paginated=True,
-        order_by=(RuntimeType.spec_version.desc(), RuntimeType.scale_type),
-        filter_combinations={
-            RuntimeType.spec_name: (RuntimeType.spec_version,),
-            RuntimeType.spec_version: (RuntimeType.spec_name,),
-        }
-    )
-
     get_log = QueryNodeOne(
         class_name="GetLog",
         model_=Log,
@@ -446,52 +412,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
         paginated=True
     )
 
-    get_transfer = QueryNodeOne(
-        class_name="GetTransfer",
-        model_=Transfer,
-        filters={
-            Transfer.block_number: ['eq',],
-            Transfer.event_idx: ['eq',],
-            Transfer.extrinsic_idx: ['eq',],
-            Transfer.from_multi_address_type: ['eq',],
-            Transfer.from_multi_address_account_id: ['eq',],
-            Transfer.from_multi_address_address_20: ['eq',],
-            Transfer.from_multi_address_address_32: ['eq',],
-            Transfer.to_multi_address_type: ['eq', ],
-            Transfer.to_multi_address_account_id: ['eq', ],
-            Transfer.to_multi_address_address_20: ['eq', ],
-            Transfer.to_multi_address_address_32: ['eq', ],
-            Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
-        },
-        filter_required=True,
-        order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
-        filter_combinations={
-            Transfer.block_number: (Transfer.event_idx,),
-            Transfer.event_idx: (Transfer.block_number,),
-        }
-    )
-
-    get_transfers = QueryNodeMany(
-        class_name="GetTransfers",
-        model_=Transfer,
-        filters={
-            Transfer.block_number: ['eq', ],
-            Transfer.event_idx: ['eq', ],
-            Transfer.extrinsic_idx: ['eq', ],
-            Transfer.from_multi_address_type: ['eq', ],
-            Transfer.from_multi_address_account_id: ['eq', ],
-            Transfer.from_multi_address_address_20: ['eq', ],
-            Transfer.from_multi_address_address_32: ['eq', ],
-            Transfer.to_multi_address_type: ['eq', ],
-            Transfer.to_multi_address_account_id: ['eq', ],
-            Transfer.to_multi_address_address_20: ['eq', ],
-            Transfer.to_multi_address_address_32: ['eq', ],
-            Transfer.block_datetime: ['eq', 'lt', 'lte', 'gt', 'gte'],
-        },
-        order_by=(Transfer.block_number.desc(), Transfer.event_idx.desc(), Transfer.extrinsic_idx.desc()),
-        paginated=True
-    )
-
     get_tagged_account = QueryNodeOne(
         class_name="GetTaggedAccount",
         model_=TaggedAccount,
@@ -501,4 +421,17 @@ class GraphQLQueries(metaclass=QueryGenerator):
         },
         order_by=TaggedAccount.account_id.desc(),
         filter_required=True
+    )
+
+    get_events_by_account = QueryNodeMany(
+        class_name="GetEventsForAccount",
+        model_=CodecEventIndexAccount,
+        order_by=(CodecEventIndexAccount.block_number.desc()),
+        schema_overrides={"account_id": graphene.String(description='')},
+        filters=CodecEventIndexAccountFilter(),
+        filter_required=True,
+        paginated=True,
+        filter_combinations={
+            CodecEventIndexAccount.event_name: (CodecEventIndexAccount.pallet, ),
+        }
     )

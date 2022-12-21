@@ -1,5 +1,4 @@
-import math
-from collections import Iterable
+from collections.abc import Iterable
 
 import graphene
 from graphql import GraphQLError
@@ -232,7 +231,7 @@ class QueryNodeOne(object):
 
                 if filters:
                     QueryNodeOne.check_filters(class_name, filters, filter_obj, filter_combinations)
-                    return filter_obj.filter(info, query, filters).one()
+                    return filter_obj.filter(info, query, filters).first()
 
                 elif filter_required:
                     raise GraphQLError(f'{class_name} requires filters')
@@ -259,9 +258,10 @@ class QueryNodeMany(QueryNodeOne):
                     block_limit_count = settings.BLOCK_LIMIT_COUNT
 
                 block_attr_name = getattr(model, "__block_number_attr__", "block_number")
+                block_limit_exclude = getattr(model, "__block_limit_exclude__", None)
                 block_attr = getattr(model, block_attr_name, None)
 
-                if block_attr:
+                if block_attr and not block_limit_exclude:
                     if not (block_limit_offset and block_limit_count):
                         last_block_nr = session.query(model, block_attr).order_by(block_attr.desc()).first()
                         block_limit_offset = last_block_nr and last_block_nr[1]

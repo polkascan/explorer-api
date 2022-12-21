@@ -20,7 +20,7 @@ from sqlalchemy import BLOB
 
 from app import settings
 from app.db import BaseModel
-from app.models.field_types import HashBinary
+from app.models.field_types import HashBinary, UTCDateTime, HashVarBinary
 
 
 class CodecBlockExtrinsic(BaseModel):
@@ -48,71 +48,23 @@ class CodecBlockExtrinsic(BaseModel):
         )
 
 
-class CodecBlockEvent(BaseModel):
-    __tablename__ = 'codec_block_event'
-    # __table_args__ = (Index('ix_codec_block_event_block_idx', "block_number", "event_idx"),)
+class CodecEventIndexAccount(BaseModel):
+    __tablename__ = 'codec_event_index_account'
     __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
-    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
-    event_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
-    block_number = sa.Column(sa.Integer(), nullable=False, index=True)
+    block_number = sa.Column(sa.Integer(), primary_key=True, nullable=False)
+    event_idx = sa.Column(sa.Integer(), primary_key=True, nullable=False)
+    attribute_name = sa.Column(sa.String(64), primary_key=True, nullable=False)
 
-    scale_type = sa.Column(sa.String(255))
+    account_id = sa.Column(HashVarBinary(33), nullable=False, index=True)
+    pallet = sa.Column(sa.String(255), nullable=False)
+    event_name = sa.Column(sa.String(255), nullable=False)
 
-    event_module = sa.Column(sa.String(255), nullable=True, index=True)
-    event_name = sa.Column(sa.String(255), nullable=True, index=True)
-    extrinsic_idx = sa.Column(sa.Integer(), index=True)
+    attributes = sa.Column(sa.JSON())
+    extrinsic_idx = sa.Column(sa.Integer(), nullable=True)
 
-    data = sa.Column(sa.JSON())
-
-    complete = sa.Column(sa.Boolean(), nullable=False, default=False, index=True)
-
-    def __repr__(self):
-        return "<{}(block_hash={}, event_idx={})>".format(
-            self.__class__.__name__, self.block_hash.hex(), self.event_idx
-        )
-
-
-class CodecBlockHeaderDigestLog(BaseModel):
-    __tablename__ = 'codec_block_header_digest_log'
-    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
-
-    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
-    log_idx = sa.Column(sa.Integer(), primary_key=True, index=True, nullable=False)
-
-    block_number = sa.Column(sa.Integer(), nullable=False, index=True)
-
-    scale_type = sa.Column(sa.String(255))
-    data = sa.Column(sa.JSON())
-
-    complete = sa.Column(sa.Boolean(), nullable=False, default=False, index=True)
-
-    def __repr__(self):
-        return "<{}(block_hash={}, log_idx={})>".format(self.__class__.__name__, self.block_hash.hex(), self.log_idx)
-
-
-class CodecBlockStorage(BaseModel):
-    __tablename__ = 'codec_block_storage'
-    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
-
-    block_hash = sa.Column(HashBinary(32), primary_key=True, index=True, nullable=False)
-    storage_key = sa.Column(sa.VARBINARY(128), primary_key=True, index=True)
-
-    block_number = sa.Column(sa.Integer(), nullable=False, index=True)
-
-    scale_type = sa.Column(sa.String(255))
-
-    storage_module = sa.Column(sa.String(255), nullable=True, index=True)
-    storage_name = sa.Column(sa.String(255), nullable=True, index=True)
-
-    data = sa.Column(sa.JSON())
-
-    complete = sa.Column(sa.Boolean(), nullable=False, default=False, index=True)
-
-    def __repr__(self):
-        return "<{}(storage_key={}, block_hash={})>".format(
-            self.__class__.__name__, self.storage_key.hex(), self.block_hash.hex()
-        )
+    sort_value = sa.Column(sa.Integer(), nullable=True, index=True)
+    block_datetime = sa.Column(UTCDateTime(timezone=True), nullable=True, index=True)
 
 
 class CodecMetadata(BaseModel):
@@ -136,6 +88,7 @@ class CodecMetadata(BaseModel):
 class Runtime(BaseModel):
     __tablename__ = 'runtime'
     __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
+    __block_limit_exclude__ = True
 
     spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
@@ -148,6 +101,8 @@ class Runtime(BaseModel):
     count_storage_functions = sa.Column(sa.Integer(), default=0, nullable=False)
     count_constants = sa.Column(sa.Integer(), nullable=False, server_default='0')
     count_errors = sa.Column(sa.Integer(), nullable=False, server_default='0')
+    block_number = sa.Column(sa.Integer(), nullable=False)
+    block_hash = sa.Column(HashBinary(32), nullable=False)
 
 
 class RuntimeCall(BaseModel):
@@ -174,7 +129,8 @@ class RuntimeCallArgument(BaseModel):
     call_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     call_argument_idx = sa.Column(sa.Integer(), primary_key=True, index=True)
     name = sa.Column(sa.String(255), index=True)
-    scale_type = sa.Column(sa.String(255))
+    scale_type = sa.Column(sa.String(512))
+    scale_type_composition = sa.Column(sa.JSON())
 
 
 class RuntimeConstant(BaseModel):
@@ -186,7 +142,8 @@ class RuntimeConstant(BaseModel):
     pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
     constant_name = sa.Column(sa.String(255), primary_key=True, index=True)
     pallet_constant_idx = sa.Column(sa.Integer(), nullable=False, index=True)
-    scale_type = sa.Column(sa.String(255))
+    scale_type = sa.Column(sa.String(512))
+    scale_type_composition = sa.Column(sa.JSON())
     value = sa.Column(sa.JSON())
     documentation = sa.Column(sa.Text())
 
@@ -222,12 +179,13 @@ class RuntimeEventAttribute(BaseModel):
     __tablename__ = 'runtime_event_attribute'
     __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
 
-    spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
+    spec_name = sa.Column(sa.String(64), nullable=False, primary_key=True, index=True)
     spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
-    pallet = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
+    pallet = sa.Column(sa.String(64), nullable=False, primary_key=True, index=True)
     event_name = sa.Column(sa.String(255), primary_key=True, index=True)
-    event_attribute_idx = sa.Column(sa.Integer(), nullable=False, index=True, primary_key=True)
-    scale_type = sa.Column(sa.String(255))
+    event_attribute_name = sa.Column(sa.String(64), nullable=False, index=True, primary_key=True)
+    scale_type = sa.Column(sa.String(512))
+    scale_type_composition = sa.Column(sa.JSON())
 
 
 class RuntimePallet(BaseModel):
@@ -259,22 +217,10 @@ class RuntimeStorage(BaseModel):
     modifier = sa.Column(sa.String(64))
     key_prefix_pallet = sa.Column(HashBinary(16))
     key_prefix_name = sa.Column(HashBinary(16))
-    key1_scale_type = sa.Column(sa.String(255))
+    key1_scale_type = sa.Column(sa.String(512))
     key1_hasher = sa.Column(sa.String(255))
-    key2_scale_type = sa.Column(sa.String(255))
+    key2_scale_type = sa.Column(sa.String(512))
     key2_hasher = sa.Column(sa.String(255))
-    value_scale_type = sa.Column(sa.String(255))
+    value_scale_type = sa.Column(sa.String(512))
     is_linked = sa.Column(sa.Boolean())
     documentation = sa.Column(sa.Text())
-
-
-class RuntimeType(BaseModel):
-    __tablename__ = 'runtime_type'
-    __table_args__ = {"schema": settings.DB_HARVESTER_NAME}
-
-    spec_name = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
-    spec_version = sa.Column(sa.Integer(), nullable=False, primary_key=True, index=True)
-    scale_type = sa.Column(sa.String(255), nullable=False, primary_key=True, index=True)
-    decoder_class = sa.Column(sa.String(255), nullable=True)
-    is_core_primitive = sa.Column(sa.Boolean())
-    is_runtime_primitive = sa.Column(sa.Boolean())

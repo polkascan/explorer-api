@@ -51,7 +51,6 @@ def test_websocket() -> Any:
             <button onclick="subscribeBlocks()">Subscribe new blocks</button>
             <button onclick="subscribeEvents()">Subscribe new events</button>
             <button onclick="subscribeExtrinsics()">Subscribe new extrinsics</button>
-            <button onclick="subscribeTransfer()">Subscribe new transfers</button>
             <button onclick="subscribeLog()">Subscribe new logs</button>
             <ul id='messages'>
             </ul>
@@ -126,17 +125,6 @@ def test_websocket() -> Any:
                         "id": "sub_events",
                         "payload": {
                             "query": "subscription { subscribeNewExtrinsic {blockNumber, extrinsicIdx, hash} }",
-                            "operationName": null,
-                        },
-                    };
-                    ws.send(JSON.stringify(payload));
-                }
-                function subscribeTransfer() {
-                    payload = {
-                        "type": GQL_START,
-                        "id": "sub_transfer",
-                        "payload": {
-                            "query": "subscription { subscribeNewTransfer {blockNumber, eventIdx, blockDatetime, fromMultiAddressAccountId, toMultiAddressAccountId} }",
                             "operationName": null,
                         },
                     };
