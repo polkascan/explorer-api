@@ -10,5 +10,5 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @event.listens_for(SessionLocal, 'after_begin')
 def set_query_timeout(session, transaction, connection):
-    session.execute('SET SESSION MAX_EXECUTION_TIME=1000;')
+    session.execute('SET SESSION MAX_EXECUTION_TIME=3000;')
 
