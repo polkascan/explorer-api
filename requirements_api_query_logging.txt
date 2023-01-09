@@ -1,0 +1,3 @@
+git+https://github.com/async-worker/aiologger.git@be00f571643e7a24fff1106a5333beb888123e28
+aiofiles==0.8.0
+orjson==3.7.2

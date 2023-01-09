@@ -25,6 +25,7 @@ from .field_types import INTEGER, NUMERIC, TINYINT, HashBinary, HashVarBinary, U
 
 class Block(BaseModel):
     __tablename__ = 'explorer_block'
+    __block_number_attr__ = 'number'
 
     number = sa.Column(INTEGER(unsigned=True, display_width=11), primary_key=True, autoincrement=False, nullable=False, index=True)
     parent_number = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
@@ -106,30 +107,6 @@ class Extrinsic(BaseModel):
     spec_name = sa.Column(sa.String(64), nullable=True)
     spec_version = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
     complete = sa.Column(TINYINT(display_width=1), nullable=False, index=True)
-
-
-class Transfer(BaseModel):
-    __tablename__ = 'explorer_transfer'
-
-    block_number = sa.Column(INTEGER(unsigned=True, display_width=11), primary_key=True, autoincrement=False, nullable=False, index=True)
-    event_idx = sa.Column(INTEGER(unsigned=True, display_width=11), primary_key=True, autoincrement=False, nullable=False, index=True)
-    extrinsic_idx = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True, index=True)
-    from_multi_address_type = sa.Column(sa.String(16), nullable=True)
-    from_multi_address_account_id = sa.Column(HashBinary(32), nullable=True, index=True)
-    from_multi_address_account_index = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
-    from_multi_address_raw = sa.Column(HashVarBinary(255), nullable=True)
-    from_multi_address_address_32 = sa.Column(HashBinary(32), nullable=True)
-    from_multi_address_address_20 = sa.Column(HashBinary(20), nullable=True)
-    to_multi_address_type = sa.Column(sa.String(16), nullable=True)
-    to_multi_address_account_id = sa.Column(HashBinary(32), nullable=True, index=True)
-    to_multi_address_account_index = sa.Column(INTEGER(unsigned=True, display_width=11), nullable=True)
-    to_multi_address_raw = sa.Column(HashVarBinary(255), nullable=True)
-    to_multi_address_address_32 = sa.Column(HashBinary(32), nullable=True)
-    to_multi_address_address_20 = sa.Column(HashBinary(20), nullable=True)
-    value = sa.Column(NUMERIC(precision=65, scale=0, unsigned=True), nullable=True)
-    block_datetime = sa.Column(UTCDateTime(timezone=True), nullable=True)
-    block_hash = sa.Column(HashBinary(32), nullable=False, index=True)
-    complete = sa.Column(sa.Boolean(), nullable=False, index=True)
 
 
 class Log(BaseModel):

@@ -1,5 +1,4 @@
-import math
-from collections import Iterable
+from collections.abc import Iterable
 
 import graphene
 from graphql import GraphQLError
@@ -9,14 +8,10 @@ from graphene_sqlalchemy_filter import FilterSet
 from sqlalchemy import INTEGER, Integer
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from sqlakeyset import get_page
-
 from app import settings
 from app.db import SessionManager
 from app.session import SessionLocal
-
-#TODO: temp workaround
-from sqlalchemy_pagination import paginate
+from app.api.graphql.pagination import paginate
 
 
 REGISTERED_GRAPHQL_NODES = set()
@@ -85,19 +80,15 @@ class PaginationType(graphene.ObjectType):
     page_size = graphene.Int()
     page_next = graphene.String()
     page_prev = graphene.String()
+    block_limit_offset = graphene.Int()
+    block_limit_count = graphene.Int()
 
 
 class AbstractPaginatedType(graphene.ObjectType):
 
     @classmethod
-    def create_paginated_result(cls, query, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE):
+    def create_paginated_result(cls, query, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE, block_limit_offset=None, block_limit_count=settings.BLOCK_LIMIT_COUNT):
         page_size = page_size or settings.DEFAULT_PAGE_SIZE
-        # paged_qs = get_page(query, per_page=page_size, page=page_key)
-        # page_info = PaginationType(
-        #     page_size=page_size,
-        #     page_next=paged_qs.paging.bookmark_next,
-        #     page_prev=paged_qs.paging.bookmark_previous
-        # )
         try:
             page_key = page_key and int(page_key) or 1
             if page_key < 1:
@@ -106,10 +97,17 @@ class AbstractPaginatedType(graphene.ObjectType):
             page_key = 1
 
         pagination = paginate(query, page_key, page_size)
+
+        # Note: If we cross our block limit window, reset the next page for the new block limit window
+        if page_key and (page_key * page_size >= block_limit_count) or len(pagination.items) < page_size:
+            pagination.next_page = None
+
         page_info = PaginationType(
             page_size=page_size,
             page_next=pagination.next_page,
             page_prev=pagination.previous_page,
+            block_limit_offset=block_limit_offset,
+            block_limit_count=block_limit_count,
         )
 
         return cls(objects=pagination.items, page_info=page_info)
@@ -147,6 +145,9 @@ class QueryNodeOne(object):
             node_schema = pagination_obj
             node_args["page_key"] = graphene.String()
             node_args["page_size"] = graphene.Int()
+            node_args["block_limit_offset"] = graphene.Int()
+            node_args["block_limit_count"] = graphene.Int()
+
         elif isinstance(self, QueryNodeMany):
             pagination_obj = create_wrapped_type(class_name, node_schema)
             node_schema = pagination_obj
@@ -230,7 +231,7 @@ class QueryNodeOne(object):
 
                 if filters:
                     QueryNodeOne.check_filters(class_name, filters, filter_obj, filter_combinations)
-                    return filter_obj.filter(info, query, filters).one()
+                    return filter_obj.filter(info, query, filters).first()
 
                 elif filter_required:
                     raise GraphQLError(f'{class_name} requires filters')
@@ -249,9 +250,30 @@ class QueryNodeMany(QueryNodeOne):
 
     @staticmethod
     def resolve(class_name, model, order_by, filter_obj, filter_required, filter_combinations, pagination_obj):
-        def resolve_func(self, info, filters=None, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE):
+        def resolve_func(self, info, filters=None, page_key=None, page_size=settings.DEFAULT_PAGE_SIZE, block_limit_offset=None, block_limit_count=None):
             with SessionManager(session_cls=SessionLocal) as session:
                 query = session.query(model)
+
+                if not block_limit_count or block_limit_count < 1 or block_limit_count > settings.BLOCK_LIMIT_COUNT:
+                    block_limit_count = settings.BLOCK_LIMIT_COUNT
+
+                block_attr_name = getattr(model, "__block_number_attr__", "block_number")
+                block_limit_exclude = getattr(model, "__block_limit_exclude__", None)
+                block_attr = getattr(model, block_attr_name, None)
+
+                if block_attr and not block_limit_exclude:
+                    if not (block_limit_offset and block_limit_count):
+                        last_block_nr = session.query(model, block_attr).order_by(block_attr.desc()).first()
+                        block_limit_offset = last_block_nr and last_block_nr[1]
+
+                    if not block_limit_offset or block_limit_offset < block_limit_count:
+                        block_limit_offset = block_limit_count
+
+                    start_offset = block_limit_offset - block_limit_count
+                    start_offset = start_offset and start_offset < 1 and 1 or start_offset
+
+                    query = query.filter(block_attr > start_offset, block_attr <= block_limit_offset)
+
                 if isinstance(order_by, Iterable):
                     query = query.order_by(*order_by)
                 else:
@@ -265,7 +287,7 @@ class QueryNodeMany(QueryNodeOne):
                     raise GraphQLError(f'{class_name} requires filters')
 
                 if pagination_obj:
-                    query = pagination_obj.create_paginated_result(query, page_key, page_size)
+                    query = pagination_obj.create_paginated_result(query, page_key, page_size, block_limit_offset, block_limit_count)
 
                 return query
 

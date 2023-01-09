@@ -1,8 +1,9 @@
 import graphene
 
 from graphene_sqlalchemy_filter import FilterSet
-from substrateinterface.utils.ss58 import ss58_decode
-from app.models.explorer import Block, Extrinsic
+from scalecodec.utils.ss58 import ss58_decode
+from app.models.explorer import Block, Extrinsic, Event
+from app.models.runtime import CodecEventIndexAccount
 
 
 class BlocksFilter(FilterSet):
@@ -44,15 +45,45 @@ class ExtrinsicFilter(FilterSet):
     class Meta:
         model = Extrinsic
         fields = {
-            'block_number': ['eq',],
+            "block_number": ['eq', 'gt', 'lt', 'gte', 'lte', 'range'],
             'extrinsic_idx': ['eq',],
             'call_module': ['eq',],
             'call_name': ['eq',],
             'signed': ['eq',],
-            'block_datetime': ['eq', 'gt', 'lt', 'gte', 'lte'],
+            "block_datetime": ['eq', 'gt', 'lt', 'gte', 'lte', 'range'],
+            "spec_name": ['eq', ],
+            "spec_version": ['eq', ],
         }
 
     @staticmethod
     def multi_address_account_id_filter(info, query, value):
         """ """
         return Extrinsic.multi_address_account_id == ss58_decode(value)
+
+
+class EventsFilter(FilterSet):
+    class Meta:
+        model = Event
+        fields = {
+            "block_number": ['eq', 'gt', 'lt', 'gte', 'lte', 'range'],
+            "event_module": ['eq', ],
+            "event_idx": ['eq', ],
+            "event_name": ['eq', ],
+            "extrinsic_idx": ['eq', ],
+            "block_datetime": ['eq', 'gt', 'lt', 'gte', 'lte', 'range'],
+            "spec_name": ['eq', ],
+            "spec_version": ['eq', ],
+        }
+
+
+class CodecEventIndexAccountFilter(FilterSet):
+    class Meta:
+        model = CodecEventIndexAccount
+        fields = {
+            "block_number": ['eq', 'gt', 'gte', 'lt', 'lte', 'range'],
+            "block_datetime": ['eq', 'gt', 'gte', 'lt', 'lte', 'range'],
+            "attribute_name": ['eq',],
+            "pallet": ['eq', 'in'],
+            "event_name": ['eq', 'in'],
+            "account_id": ['eq', ],
+        }

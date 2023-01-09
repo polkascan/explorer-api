@@ -16,12 +16,6 @@ graphql-core==3.1.2
 graphql-relay==3.1.0
 websockets==8.1
 git+https://github.com/polkascan/graphene-sqlalchemy-filter.git
-substrate-interface~=1.1.7
+scalecodec~=1.0
 broadcaster==0.2.0
 asyncio-redis==0.16.0
-sqlakeyset==1.0.1611286921
-git+https://github.com/polkascan/sqlalchemy-pagination.git@f8ae4b458b345dc0a2ec09c496c6d204505dda50
-
-opentelemetry-distro==0.29b0
-opentelemetry-exporter-otlp==1.10.0
-opentelemetry-instrumentation-fastapi==0.29b0

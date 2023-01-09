@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Let the DB start
 export PYTHONPATH=".:${PYTHONPATH}"

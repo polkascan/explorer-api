@@ -55,7 +55,7 @@ wait_seconds = 1
 )
 async def get_connection() -> None:
     try:
-        return await aiomysql.connect(
+        connection = await aiomysql.connect(
             user=os.environ["DB_USERNAME"],
             db=os.environ["DB_NAME"],
             host=os.environ["DB_HOST"],
@@ -67,6 +67,12 @@ async def get_connection() -> None:
         logger.error(e)
         if sentry_enabled: sentry_sdk.capture_exception(e)
         raise e
+
+    # Make sure the DB is created before we start
+    async with connection.cursor() as cur:
+        await cur.execute(f"SELECT number FROM explorer_block LIMIT 1")
+
+    return connection
 
 
 async def poll_db(loop):

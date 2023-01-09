@@ -25,7 +25,8 @@ class UTCDateTime(sa.types.TypeDecorator):
     def result_processor(self, dialect, coltype):
         """Return a processor that encodes hex values."""
         def process(value):
-            return value.replace(tzinfo=timezone.utc)
+            if value:
+                return value.replace(tzinfo=timezone.utc)
         return process
 
     def adapt(self, impltype):

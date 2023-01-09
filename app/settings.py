@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional, Union
-
 from pydantic import AnyHttpUrl, BaseSettings, HttpUrl, validator
+
 
 default_env_ext = ".env"
 local_env_ext = ".local.env"
@@ -9,6 +9,8 @@ local_env_ext = ".local.env"
 
 class Settings(BaseSettings):
     CHAIN_ID: str
+    HTTP_MOUNT: str = "/graphql"
+    WS_MOUNT: str = "/graphql-ws"
     API_STR: str = "/api/"
     SERVER_ADDR: str
     SERVER_PORT: int
@@ -23,6 +25,7 @@ class Settings(BaseSettings):
     DB_HARVESTER_NAME: str
     DEFAULT_PAGE_SIZE: int = 10
     BROADCAST_URI: str
+    BLOCK_LIMIT_COUNT: int
 
     SENTRY_PROJECT_NAME: str
     SENTRY_SERVER_NAME: str
