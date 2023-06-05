@@ -112,8 +112,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
         filters={
             Runtime.spec_name:  ['eq',],
             Runtime.spec_version:  ['eq',],
-        },
-        paginated=True
+        }
     )
 
     get_runtime_call = QueryNodeOne(
@@ -143,7 +142,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeCall.pallet:  ['eq',],
         },
         filter_required=True,
-        #paginated=True,
         filter_combinations={
             RuntimeCall.spec_name: (RuntimeCall.spec_version,),
             RuntimeCall.spec_version: (RuntimeCall.spec_name,),
@@ -162,7 +160,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeCallArgument.call_name:  ['eq',],
         },
         filter_required=True,
-        #paginated=True,
         filter_combinations={
             RuntimeCallArgument.spec_name: (RuntimeCallArgument.spec_version, RuntimeCallArgument.pallet, RuntimeCallArgument.call_name),
             RuntimeCallArgument.spec_version: (RuntimeCallArgument.spec_name, RuntimeCallArgument.pallet, RuntimeCallArgument.call_name),
@@ -201,7 +198,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeConstant.constant_name:  ['eq',],
         },
         filter_required=True,
-        #paginated=True,
         filter_combinations={
             RuntimeConstant.spec_name: (RuntimeConstant.spec_version,),
             RuntimeConstant.spec_version: (RuntimeConstant.spec_name,),
@@ -239,7 +235,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeErrorMessage.error_name:  ['eq',],
         },
         filter_required=True,
-        #paginated=True,
         filter_combinations={
             RuntimeErrorMessage.spec_name: (RuntimeErrorMessage.spec_version, ),
             RuntimeErrorMessage.spec_version: (RuntimeErrorMessage.spec_name, ),
@@ -277,7 +272,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeEvent.event_name:  ['eq',],
         },
         filter_required=True,
-        #paginated=True,
         filter_combinations={
             RuntimeEvent.spec_name: (RuntimeEvent.spec_version,),
             RuntimeEvent.spec_version: (RuntimeEvent.spec_name,),
@@ -295,8 +289,7 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeEventAttribute.pallet:  ['eq',],
             RuntimeEventAttribute.event_name:  ['eq',],
         },
-        filter_required = True,
-        #paginated=True,
+        filter_required=True,
         filter_combinations={
             RuntimeEventAttribute.spec_name: (RuntimeEventAttribute.spec_version, RuntimeEventAttribute.pallet, RuntimeEventAttribute.event_name),
             RuntimeEventAttribute.spec_version: (RuntimeEventAttribute.spec_name, RuntimeEventAttribute.pallet, RuntimeEventAttribute.event_name),
@@ -332,7 +325,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimePallet.pallet: ['eq', ],
         },
         filter_required=True,
-        #paginated=True,
         filter_combinations={
             RuntimePallet.spec_name: (RuntimePallet.spec_version,),
             RuntimePallet.spec_version: (RuntimePallet.spec_name,),
@@ -368,7 +360,6 @@ class GraphQLQueries(metaclass=QueryGenerator):
             RuntimeStorage.storage_name: ['eq', ],
         },
         filter_required=True,
-        #paginated=True,
         order_by=(RuntimeStorage.spec_version.desc(), RuntimeStorage.pallet, RuntimeStorage.storage_name),
         filter_combinations={
             RuntimeStorage.spec_name: (RuntimeStorage.spec_version,),
